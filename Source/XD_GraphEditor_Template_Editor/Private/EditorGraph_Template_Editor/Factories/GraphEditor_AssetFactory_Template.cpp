@@ -1,0 +1,15 @@
+﻿// Copyright (c) 2018 Jhonny Hueller
+#include "GraphEditor_AssetFactory_Template.h"
+#include "BP_Graph_Template.h"
+
+UGraphEditor_AssetFactory_Template::UGraphEditor_AssetFactory_Template()
+{
+	SupportedClass = UBP_Graph_Template::StaticClass();
+	bCreateNew = true;
+	bEditAfterNew = true;
+}
+
+UObject* UGraphEditor_AssetFactory_Template::FactoryCreateNew(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn)
+{
+	return NewObject<UBP_Graph_Template>(InParent, InClass, InName, Flags);
+}

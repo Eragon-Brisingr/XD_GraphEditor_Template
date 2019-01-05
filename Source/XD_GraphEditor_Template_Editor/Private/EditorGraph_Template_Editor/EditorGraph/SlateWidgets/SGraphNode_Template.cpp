@@ -1,0 +1,231 @@
+﻿// Copyright (c) 2018 Jhonny Hueller
+#include "SGraphNode_Template.h"
+#include "Slate.h"
+#include "Editor_GraphNode_Template.h"
+#include "SGraphPin.h"
+#include "SGraphPin_Template.h"
+#include "GraphEditor_Template_Log.h"
+#include "../../../../../../../../../../EpicGames/UE_4.21/Engine/Source/Editor/GraphEditor/Public/SCommentBubble.h"
+
+#define LOCTEXT_NAMESPACE "SBP_Graph_TemplateNode"
+
+void SGraphNode_Template::Construct(const FArguments & InArgs, UEdGraphNode * InNode)
+{
+	GraphNode = InNode;
+	UpdateGraphNode();
+}
+
+BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
+
+void SGraphNode_Template::UpdateGraphNode()
+{
+
+	const FMargin NodePadding = FMargin(2.0f);
+
+	InputPins.Empty();
+	OutputPins.Empty();
+
+	RightNodeBox.Reset();
+	LeftNodeBox.Reset();
+
+	TSharedPtr<SNodeTitle> NodeTitle = SNew(SNodeTitle, GraphNode);
+
+	this->ContentScale.Bind(this, &SGraphNode::GetContentScale);
+
+	this->GetOrAddSlot(ENodeZone::Center)
+		.HAlign(HAlign_Fill)
+		.VAlign(VAlign_Center)
+		[
+			SNew(SBorder)
+			.BorderImage(FEditorStyle::GetBrush("Graph.StateNode.Body"))
+			.Padding(FMargin(0.0f))
+			.BorderBackgroundColor(FLinearColor(0.1f, 0.1f, 0.1f))
+			[
+				SAssignNew(ErrorBorder,SBorder)
+				.BorderImage(FEditorStyle::GetBrush("Graph.StateNode.Body"))
+				.BorderBackgroundColor(FLinearColor(0.1f, 0.1f, 0.1f))
+				[
+					SNew(SBorder)
+                    .BorderImage(FEditorStyle::GetBrush("Graph.StateNode.Body"))
+                    .Padding(FMargin(10.0f))
+                    .BorderBackgroundColor(FLinearColor(0.1f, 0.1f, 0.1f))
+                    [
+                        SNew(SVerticalBox)
+//                         + SVerticalBox::Slot()
+//                         .AutoHeight()
+//                         [
+//                             SAssignNew(LeftNodeBox, SVerticalBox)
+//                         ]
+                        + SVerticalBox::Slot()
+                        .HAlign(HAlign_Center)
+                        .AutoHeight()
+                        [
+                            SAssignNew(NodeHeader, STextBlock)
+                        ]
+                        + SVerticalBox::Slot()
+                        .HAlign(HAlign_Center)
+                        .AutoHeight()
+                        [
+                            SAssignNew(InlineEditableText, SInlineEditableTextBlock)
+                            .Style(FEditorStyle::Get(), "Graph.StateNode.NodeTitleInlineEditableText")
+                            .Text(NodeTitle.Get(), &SNodeTitle::GetHeadTitle)
+                            .IsReadOnly(this, &SGraphNode_Template::IsNameReadOnly)
+                            .OnTextCommitted(this, &SGraphNode_Template::OnNameTextCommited)
+                            .OnVerifyTextChanged(this, &SGraphNode_Template::OnVerifyNameTextChanged)
+                        ]
+                        + SVerticalBox::Slot()
+                        .AutoHeight()
+                        [
+                            NodeTitle.ToSharedRef()
+                        ]
+                        + SVerticalBox::Slot()
+                        .AutoHeight()
+                        [
+							SNew(SHorizontalBox)
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							[
+								SNew(SBox)
+								.MinDesiredWidth(2.f)
+								[
+									SAssignNew(LeftNodeBox, SVerticalBox)
+								]
+							]
+							+ SHorizontalBox::Slot()
+							.VAlign(VAlign_Fill)
+							[
+								SAssignNew(ContentWidget, SVerticalBox)
+							]
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							[
+								SNew(SBox)
+								.MinDesiredWidth(2.f)
+								[
+									SAssignNew(RightNodeBox, SVerticalBox)
+								]
+							]
+                        ]
+//                         + SVerticalBox::Slot()
+//                         .AutoHeight()
+//                         [
+//                             SAssignNew(RightNodeBox, SVerticalBox)
+//                         ]
+                    ]
+				]
+			]
+		];
+
+	//注释用的气泡
+	TSharedPtr<SCommentBubble> CommentBubble;
+	const FSlateColor CommentColor = GetDefault<UGraphEditorSettings>()->DefaultCommentNodeTitleColor;
+
+	SAssignNew(CommentBubble, SCommentBubble)
+		.GraphNode(GraphNode)
+		.Text(this, &SGraphNode::GetNodeComment)
+		.OnTextCommitted(this, &SGraphNode::OnCommentTextCommitted)
+		.ColorAndOpacity(CommentColor)
+		.AllowPinning(true)
+		.EnableTitleBarBubble(true)
+		.EnableBubbleCtrls(true)
+		.GraphLOD(this, &SGraphNode::GetCurrentLOD)
+		.IsGraphNodeHovered(this, &SGraphNode::IsHovered);
+
+	GetOrAddSlot(ENodeZone::TopCenter)
+		.SlotOffset(TAttribute<FVector2D>(CommentBubble.Get(), &SCommentBubble::GetOffset))
+		.SlotSize(TAttribute<FVector2D>(CommentBubble.Get(), &SCommentBubble::GetSize))
+		.AllowScaling(TAttribute<bool>(CommentBubble.Get(), &SCommentBubble::IsScalingAllowed))
+		.VAlign(VAlign_Top)
+		[
+			CommentBubble.ToSharedRef()
+		];
+
+	CreatePinWidgets();
+	CreateContent();
+    CreateHeader();
+}
+
+void SGraphNode_Template::CreatePinWidgets()
+{
+	UEditor_GraphNode_Template* EdNode = CastChecked<UEditor_GraphNode_Template>(GraphNode);
+	for (int32 i = 0; i < EdNode->Pins.Num(); ++i)
+	{
+		UEdGraphPin* Pin = EdNode->Pins[i];
+		if (!Pin->bHidden)
+		{
+			TSharedPtr<SGraphPin>NewPin = SNew(SGraphPin_Template, Pin);
+			AddPin(NewPin.ToSharedRef());
+		}
+	}
+}
+
+void SGraphNode_Template::AddPin(const TSharedRef<SGraphPin>& PinToAdd)
+{
+	PinToAdd->SetOwner(SharedThis(this));
+	if (PinToAdd->GetDirection() == EEdGraphPinDirection::EGPD_Input)
+	{
+		LeftNodeBox->AddSlot()
+			.HAlign(HAlign_Fill)
+			.VAlign(VAlign_Fill)
+			.FillHeight(1.0f)
+			.Padding(20.0f, 0.0f)
+			[
+				PinToAdd
+			];
+		InputPins.Add(PinToAdd);
+	}
+	else
+	{
+		RightNodeBox->AddSlot()
+			.HAlign(HAlign_Fill)
+			.VAlign(VAlign_Fill)
+			.FillHeight(1.0f)
+			.Padding(20.0f, 0.0f)
+			[
+				PinToAdd
+			];
+		OutputPins.Add(PinToAdd);
+	}
+}
+
+bool SGraphNode_Template::IsNameReadOnly() const
+{
+	return false;
+}
+
+void SGraphNode_Template::OnNameTextCommited(const FText & InText, ETextCommit::Type CommitInfo)
+{
+	UEditor_GraphNode_Template* UEdNode = CastChecked<UEditor_GraphNode_Template>(GraphNode);
+
+	if (UEdNode)
+		if (UEdNode->RenameUniqueNode(InText))
+		{
+			UpdateGraphNode();
+            NodeHeader.Get()->SetVisibility(EVisibility::Visible);
+			SGraphNode::OnNameTextCommited(InText, CommitInfo);
+		}
+
+}
+void SGraphNode_Template::CreateContent()
+{
+	UEditor_GraphNode_Template* Node = Cast<UEditor_GraphNode_Template>(GraphNode);
+
+	ContentWidget->AddSlot()
+		[
+			Node->GetContentWidget().ToSharedRef()
+		];
+}
+void SGraphNode_Template::CreateHeader()
+{
+    NodeHeader.Get()->SetText(GraphNode->GetNodeTitle(ENodeTitleType::MenuTitle));
+
+    UEditor_GraphNode_Template* UEdNode = CastChecked<UEditor_GraphNode_Template>(GraphNode);
+
+    if (UEdNode)
+        NodeHeader.Get()->SetVisibility((UEdNode->GetEdNodeName().IsEmpty()) ? EVisibility::Collapsed : EVisibility::Visible);
+    else
+        GraphEditor_Template_Error_Log("An error occurred when creating the slate node headers");
+}
+
+END_SLATE_FUNCTION_BUILD_OPTIMIZATION
+#undef LOCTEXT_NAMESPACE
