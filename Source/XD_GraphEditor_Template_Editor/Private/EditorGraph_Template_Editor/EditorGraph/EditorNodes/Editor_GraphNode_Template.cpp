@@ -15,6 +15,9 @@
 
 UEditor_GraphNode_Template::UEditor_GraphNode_Template(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer){}
 
+const FName DefualtPinType("Default");
+const FName InPinName("InPin");
+const FName OutPinName("OutPin");
 
 TSharedPtr<SGraphNode> UEditor_GraphNode_Template::CreateVisualWidget()
 {
@@ -65,9 +68,9 @@ void UEditor_GraphNode_Template::AllocateDefaultPins()
 {
 	UEdGraphNode::AllocateDefaultPins();
 	if (HasInputPins())
-		CreatePin(EGPD_Input, FName("InCategory"), FName("InPinName"));
+		CreatePin(EGPD_Input, DefualtPinType, InPinName);
 	if (HasOutputPins())
-		CreatePin(EGPD_Output, FName("OutCategory"), FName("OutPinName"));
+		CreatePin(EGPD_Output, DefualtPinType, OutPinName);
 }
 
 FText UEditor_GraphNode_Template::GetNodeTitle(ENodeTitleType::Type TitleType) const
@@ -107,14 +110,14 @@ void UEditor_GraphNode_Template::AutowireNewNode(UEdGraphPin * FromPin)
 		UEdGraphNode::AutowireNewNode(FromPin);
 		if (FromPin->Direction == EEdGraphPinDirection::EGPD_Input)
 		{
-			if (GetSchema()->TryCreateConnection(FromPin, FindPin(FName("OutPinName"))))
+			if (GetSchema()->TryCreateConnection(FromPin, FindPin(OutPinName)))
 			{
 				FromPin->GetOwningNode()->NodeConnectionListChanged();
 			}
 		}
 		if (FromPin->Direction == EEdGraphPinDirection::EGPD_Output)
 		{
-			if (GetSchema()->TryCreateConnection(FromPin, FindPin(FName("InPinName"))))
+			if (GetSchema()->TryCreateConnection(FromPin, FindPin(InPinName)))
 			{
 				FromPin->GetOwningNode()->NodeConnectionListChanged();
 			}

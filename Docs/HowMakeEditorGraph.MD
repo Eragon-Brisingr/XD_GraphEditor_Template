@@ -1,3 +1,13 @@
+# 如何使用模板
+## 使用
+### 创建图表
+
+![创建图表](Images\创建图表.png)
+
+### 使用
+
+![节点效果](Images\节点效果.png)
+
 # 制作虚幻图表编辑器
 
 ## 继承类型
@@ -7,6 +17,8 @@
 ### UEdGraph
 
 ### UEdGraphNode
+
+1. AutowireNewNode定义了节点的自动连接行为
 
 ### FAssetEditorToolkit
 

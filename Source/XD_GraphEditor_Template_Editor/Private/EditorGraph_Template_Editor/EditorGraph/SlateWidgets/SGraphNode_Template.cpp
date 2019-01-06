@@ -196,12 +196,13 @@ void SGraphNode_Template::OnNameTextCommited(const FText & InText, ETextCommit::
 		}
 
 }
+
 void SGraphNode_Template::CreateContent()
 {
 	UEditor_GraphNode_Template* Node = Cast<UEditor_GraphNode_Template>(GraphNode);
 
 	ContentWidget->SetContent(Node->GetContentWidget().ToSharedRef());
-	ContentWidget->SetMinDesiredWidth(300.f);
+	ContentWidget->SetMinDesiredWidth(200.f);
 }
 
 void SGraphNode_Template::CreateHeader()
