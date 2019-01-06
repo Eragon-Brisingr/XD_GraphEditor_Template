@@ -8,7 +8,7 @@
 
 ### UEdGraphNode
 
-###FAssetEditorToolkit
+### FAssetEditorToolkit
 
 1. 定义编辑器面板布局，添加Tab页面等操作。
 
@@ -24,7 +24,7 @@
 1. SGraphNode
 2. SGraphPin
 
-###资源行为类型
+### 资源行为类型
 
 1. FAssetTypeActions_Base
 2. UFactory
@@ -33,7 +33,7 @@
 
 ## 添加右键菜单
 
-###图表右键菜单
+### 图表右键菜单
 
 重写UEdGraphSchema中的GetGraphContextActions
 
@@ -42,3 +42,13 @@
 重写UEdGraphNode中的GetContextMenuActions
 
 重写UEdGraphSchema中的GetContextMenuActions给全局的Node或者Pin添加行为
+
+## 错误报告
+UEdGraphNode中设置ErrorMsg、bHasCompilerMessage、ErrorType（EMessageSeverity::Type）
+
+SGraphNode在节点需要更新错误信息的地方调用UpdateErrorInfo
+
+## FGraphEditor_ClassHelper_Template
+GatherClasses 搜集UClass信息
+
+构造函数中FGraphEditor_ClassHelper_Template(UClass* InRootClass); InRootClass表示搜集的根

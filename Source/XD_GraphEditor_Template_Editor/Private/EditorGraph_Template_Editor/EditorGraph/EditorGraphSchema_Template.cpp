@@ -27,12 +27,12 @@ void UEditorGraphSchema_Template::GetGraphContextActions(FGraphContextMenuBuilde
 	
 	//Gathering C++ classes
 
-	FCategorizedGraphActionListBuilder BaseBuilder(TEXT("Base Nodes"));
+	FCategorizedGraphActionListBuilder BaseBuilder(TEXT("C++ Defined Nodes"));
 
-    TArray<FGraphEditor_ClassData_Template> NativeClasses;
-    Helper->GatherClasses(UBP_GraphNode_Template::StaticClass(),NativeClasses);
+    TArray<FGraphEditor_ClassData_Template> AllSubClasses;
+    Helper->GatherClasses(UBP_GraphNode_Template::StaticClass(),AllSubClasses);
 
-    for (auto& NativeClassData : NativeClasses)
+    for (auto& NativeClassData : AllSubClasses)
     {
         if (NativeClassData.GetClass()->HasAnyClassFlags(CLASS_Native))
         {
@@ -49,14 +49,9 @@ void UEditorGraphSchema_Template::GetGraphContextActions(FGraphContextMenuBuilde
 	ContextMenuBuilder.Append(BaseBuilder);
 	
 	//Gathering child blueprints
+    FCategorizedGraphActionListBuilder BlueprintBuilder(TEXT("Blueprint Defined Nodes"));
 
-	TArray<FGraphEditor_ClassData_Template> BlueprintClasses;
-	Helper->GatherClasses(UBP_GraphNode_Template::StaticClass(), BlueprintClasses);
-    Helper->GatherClasses(UBP_GraphNode_Template::StaticClass(), BlueprintClasses);
-
-    FCategorizedGraphActionListBuilder BlueprintBuilder(TEXT("UserDefinedNodes"));
-
-	for (auto& BlueprintClassData : BlueprintClasses)
+	for (auto& BlueprintClassData : AllSubClasses)
 	{
 		if (!BlueprintClassData.GetClass()->HasAnyClassFlags(CLASS_Native))
 		{

@@ -5,7 +5,7 @@
 #include "SGraphPin.h"
 #include "SGraphPin_Template.h"
 #include "GraphEditor_Template_Log.h"
-#include "../../../../../../../../../../EpicGames/UE_4.21/Engine/Source/Editor/GraphEditor/Public/SCommentBubble.h"
+#include "SCommentBubble.h"
 
 #define LOCTEXT_NAMESPACE "SBP_Graph_TemplateNode"
 
@@ -29,6 +29,7 @@ void SGraphNode_Template::UpdateGraphNode()
 	LeftNodeBox.Reset();
 
 	TSharedPtr<SNodeTitle> NodeTitle = SNew(SNodeTitle, GraphNode);
+	TSharedPtr<SErrorText> ErrorText;
 
 	this->ContentScale.Bind(this, &SGraphNode::GetContentScale);
 
@@ -38,80 +39,65 @@ void SGraphNode_Template::UpdateGraphNode()
 		[
 			SNew(SBorder)
 			.BorderImage(FEditorStyle::GetBrush("Graph.StateNode.Body"))
-			.Padding(FMargin(0.0f))
+			.Padding(FMargin(1.f, 5.0f))
 			.BorderBackgroundColor(FLinearColor(0.1f, 0.1f, 0.1f))
 			[
-				SAssignNew(ErrorBorder,SBorder)
-				.BorderImage(FEditorStyle::GetBrush("Graph.StateNode.Body"))
-				.BorderBackgroundColor(FLinearColor(0.1f, 0.1f, 0.1f))
+				SNew(SHorizontalBox)
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SAssignNew(LeftNodeBox, SVerticalBox)
+				]
+				+ SHorizontalBox::Slot()
+				.HAlign(HAlign_Fill)
 				[
 					SNew(SBorder)
                     .BorderImage(FEditorStyle::GetBrush("Graph.StateNode.Body"))
-                    .Padding(FMargin(10.0f))
-                    .BorderBackgroundColor(FLinearColor(0.1f, 0.1f, 0.1f))
+                    .Padding(FMargin(5.0f))
+                    .BorderBackgroundColor(FLinearColor(0.1f, 0.1f, 0.4f))
                     [
-                        SNew(SVerticalBox)
-//                         + SVerticalBox::Slot()
-//                         .AutoHeight()
-//                         [
-//                             SAssignNew(LeftNodeBox, SVerticalBox)
-//                         ]
-                        + SVerticalBox::Slot()
-                        .HAlign(HAlign_Center)
-                        .AutoHeight()
-                        [
-                            SAssignNew(NodeHeader, STextBlock)
-                        ]
-                        + SVerticalBox::Slot()
-                        .HAlign(HAlign_Center)
-                        .AutoHeight()
-                        [
-                            SAssignNew(InlineEditableText, SInlineEditableTextBlock)
-                            .Style(FEditorStyle::Get(), "Graph.StateNode.NodeTitleInlineEditableText")
-                            .Text(NodeTitle.Get(), &SNodeTitle::GetHeadTitle)
-                            .IsReadOnly(this, &SGraphNode_Template::IsNameReadOnly)
-                            .OnTextCommitted(this, &SGraphNode_Template::OnNameTextCommited)
-                            .OnVerifyTextChanged(this, &SGraphNode_Template::OnVerifyNameTextChanged)
-                        ]
-                        + SVerticalBox::Slot()
-                        .AutoHeight()
-                        [
-                            NodeTitle.ToSharedRef()
-                        ]
-                        + SVerticalBox::Slot()
-                        .AutoHeight()
-                        [
-							SNew(SHorizontalBox)
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							[
-								SNew(SBox)
-								.MinDesiredWidth(2.f)
-								[
-									SAssignNew(LeftNodeBox, SVerticalBox)
-								]
-							]
-							+ SHorizontalBox::Slot()
-							.VAlign(VAlign_Fill)
-							[
-								SAssignNew(ContentWidget, SVerticalBox)
-							]
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							[
-								SNew(SBox)
-								.MinDesiredWidth(2.f)
-								[
-									SAssignNew(RightNodeBox, SVerticalBox)
-								]
-							]
-                        ]
-//                         + SVerticalBox::Slot()
-//                         .AutoHeight()
-//                         [
-//                             SAssignNew(RightNodeBox, SVerticalBox)
-//                         ]
+						SNew(SVerticalBox)
+						+ SVerticalBox::Slot()
+						.HAlign(HAlign_Center)
+						.AutoHeight()
+						[
+							SAssignNew(NodeHeader, STextBlock)
+						]
+						+ SVerticalBox::Slot()
+						.HAlign(HAlign_Center)
+						.AutoHeight()
+						[
+							SAssignNew(InlineEditableText, SInlineEditableTextBlock)
+							.Style(FEditorStyle::Get(), "Graph.StateNode.NodeTitleInlineEditableText")
+							.Text(NodeTitle.Get(), &SNodeTitle::GetHeadTitle)
+							.IsReadOnly(this, &SGraphNode_Template::IsNameReadOnly)
+							.OnTextCommitted(this, &SGraphNode_Template::OnNameTextCommited)
+							.OnVerifyTextChanged(this, &SGraphNode_Template::OnVerifyNameTextChanged)
+						]
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						[
+							NodeTitle.ToSharedRef()
+						]
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						[
+							SAssignNew(ContentWidget, SBox)
+						]
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						[
+							// 错误提示
+							SAssignNew(ErrorText, SErrorText)
+							.BackgroundColor(this, &SGraphNode_Template::GetErrorColor)
+							.ToolTipText(this, &SGraphNode_Template::GetErrorMsgToolTip)
+						]
                     ]
+				]
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SAssignNew(RightNodeBox, SVerticalBox)
 				]
 			]
 		];
@@ -139,6 +125,10 @@ void SGraphNode_Template::UpdateGraphNode()
 		[
 			CommentBubble.ToSharedRef()
 		];
+
+	UpdateErrorInfo();
+	ErrorReporting = ErrorText;
+	ErrorReporting->SetError(ErrorMsg);
 
 	CreatePinWidgets();
 	CreateContent();
@@ -168,7 +158,7 @@ void SGraphNode_Template::AddPin(const TSharedRef<SGraphPin>& PinToAdd)
 			.HAlign(HAlign_Fill)
 			.VAlign(VAlign_Fill)
 			.FillHeight(1.0f)
-			.Padding(20.0f, 0.0f)
+			.Padding(0.f, 0.0f)
 			[
 				PinToAdd
 			];
@@ -180,7 +170,7 @@ void SGraphNode_Template::AddPin(const TSharedRef<SGraphPin>& PinToAdd)
 			.HAlign(HAlign_Fill)
 			.VAlign(VAlign_Fill)
 			.FillHeight(1.0f)
-			.Padding(20.0f, 0.0f)
+			.Padding(0.f, 0.0f)
 			[
 				PinToAdd
 			];
@@ -210,11 +200,10 @@ void SGraphNode_Template::CreateContent()
 {
 	UEditor_GraphNode_Template* Node = Cast<UEditor_GraphNode_Template>(GraphNode);
 
-	ContentWidget->AddSlot()
-		[
-			Node->GetContentWidget().ToSharedRef()
-		];
+	ContentWidget->SetContent(Node->GetContentWidget().ToSharedRef());
+	ContentWidget->SetMinDesiredWidth(300.f);
 }
+
 void SGraphNode_Template::CreateHeader()
 {
     NodeHeader.Get()->SetText(GraphNode->GetNodeTitle(ENodeTitleType::MenuTitle));

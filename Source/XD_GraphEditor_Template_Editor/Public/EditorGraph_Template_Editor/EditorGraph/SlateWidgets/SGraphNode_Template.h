@@ -25,8 +25,7 @@ public:
 
 protected:
 
-	TSharedPtr<SVerticalBox> ContentWidget;
-	TSharedPtr<SBorder> ErrorBorder;
+	TSharedPtr<SBox> ContentWidget;
     TSharedPtr<STextBlock> NodeHeader;
 
 	virtual void CreateContent();

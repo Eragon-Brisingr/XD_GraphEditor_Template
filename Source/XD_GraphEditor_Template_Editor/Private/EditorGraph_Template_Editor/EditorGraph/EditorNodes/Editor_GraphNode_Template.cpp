@@ -8,8 +8,8 @@
 #include "PropertyEditorModule.h"
 #include "ModuleManager.h"
 #include "GraphEditor_Template_Log.h"
-#include "../../../../../../../../../../EpicGames/UE_4.21/Engine/Source/Runtime/Slate/Public/Framework/Commands/GenericCommands.h"
-#include "../../../../../../../../../../EpicGames/UE_4.21/Engine/Source/Editor/GraphEditor/Public/GraphEditorActions.h"
+#include "GenericCommands.h"
+#include "GraphEditorActions.h"
 
 #define LOCTEXT_NAMESPACE "Editor_GraphNode_Template"
 
@@ -28,6 +28,7 @@ TSharedPtr<SWidget> UEditor_GraphNode_Template::GetContentWidget()
 	DetailsViewArgs.bAllowSearch = false;
 	DetailsViewArgs.bLockable = false;
 	DetailsViewArgs.NameAreaSettings = FDetailsViewArgs::HideNameArea;
+	DetailsViewArgs.DefaultsOnlyVisibility = EEditDefaultsOnlyNodeVisibility::Hide;
 
 	FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
 	TSharedPtr<IDetailsView> View = PropertyEditorModule.CreateDetailView(DetailsViewArgs);
