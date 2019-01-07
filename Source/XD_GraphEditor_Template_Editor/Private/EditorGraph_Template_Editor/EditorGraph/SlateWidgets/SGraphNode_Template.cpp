@@ -19,9 +19,6 @@ BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
 void SGraphNode_Template::UpdateGraphNode()
 {
-
-	const FMargin NodePadding = FMargin(2.0f);
-
 	InputPins.Empty();
 	OutputPins.Empty();
 
