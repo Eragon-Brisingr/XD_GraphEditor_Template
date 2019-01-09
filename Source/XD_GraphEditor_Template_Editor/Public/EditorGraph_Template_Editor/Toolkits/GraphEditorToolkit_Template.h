@@ -2,16 +2,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AssetEditorToolkit.h"
+#include "BlueprintEditor.h"
 #include "NotifyHook.h"
 #include "GraphEditor.h"
 #include "IDetailsView.h"
 #include "BP_Graph_Template.h"
 
+class UEditorGraph_Blueprint_Template;
+
 /**
  * 
  */
-class FGraphEditorToolkit_Template : public FAssetEditorToolkit, public FNotifyHook
+class FGraphEditorToolkit_Template : public FBlueprintEditor
 {
 public:
 	FGraphEditorToolkit_Template();
@@ -26,13 +28,19 @@ public:
 	virtual void UnregisterTabSpawners(const TSharedRef<FTabManager>& TabManager) override;
 	virtual void SaveAsset_Execute() override;
 
-	virtual void InitGraphAssetEditor(const EToolkitMode::Type InMode, const TSharedPtr<class IToolkitHost>& InToolkitHost, UBP_Graph_Template* InGraph);
+	virtual void InitGarph_TemplateEditor(const EToolkitMode::Type InMode, const TSharedPtr<class IToolkitHost>& InToolkitHost, UEditorGraph_Blueprint_Template* InBP);
 	virtual void BlueprintCompiled();
+
+	// Begin FBlueprintEditor
+	void InitalizeExtenders() override;
+	virtual void RegisterApplicationModes(const TArray<UBlueprint*>& InBlueprints, bool bShouldOpenInDefaultsMode, bool bNewlyCreated = false) override;
+	virtual FGraphAppearanceInfo GetGraphAppearance(class UEdGraph* InGraph) const override;
+	virtual void AppendExtraCompilerResults(TSharedPtr<class IMessageLogListing> ResultsListing) override;
+	virtual TSubclassOf<UEdGraphSchema> GetDefaultSchemaClass() const override;
+	// End FBlueprintEditor
+
+	class UEditorGraph_Blueprint_Template* GetTemplateBlueprintObj() const;
 private:
-
-	static const FName DetailsTabId;
-	static const FName GraphTabId;
-
 	UBP_Graph_Template* GraphAsset;
 	TSharedPtr<SGraphEditor> EdGraphEditor;
 	TSharedPtr<IDetailsView> DetailsWidget;
@@ -52,7 +60,6 @@ private:
 	bool CanCopyNodes();
 
 	void OnCommandPaste();
-	bool CanPasteNodes();
 
 	void OnCommandCut();
 	bool CanCutNodes();

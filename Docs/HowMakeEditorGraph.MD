@@ -31,7 +31,7 @@ EdGraph是图表实例的类型，定义了该图表的行为（例如保存图�
 
 ### FAssetEditorToolkit
 
-1. 定义编辑器面板布局，添加Tab页面等操作。
+1. 可在初始化时调用FAssetEditorToolkit::InitAssetEditor定义面板的布局。（复杂情况参考FApplicationMode）
 
 2. 通过向FUICommandList的变量中注册事件（复制、粘贴、拷贝、删除等等）定义基础编辑器操作
 
@@ -91,3 +91,39 @@ SGraphNode在节点需要更新错误信息的地方调用UpdateErrorInfo
 GatherClasses 搜集UClass信息
 
 构造函数中FGraphEditor_ClassHelper_Template(UClass* InRootClass); InRootClass表示搜集的根
+
+
+
+# 拓展蓝图编辑器
+
+## 继承类型
+
+### UBlueprint
+
+1. 自定义蓝图的资源类型
+2. 调用FKismetEditorUtilities::CreateBlueprint创建蓝图资源
+
+### UBlueprintGeneratedClass
+
+1. 自定义蓝图的Runtime类型
+
+### FApplicationMode
+
+1. 定义了App的模式
+2. 定义了初始的界面布局
+3. FBlueprintEditor::RegisterApplicationModes中重写以映射操作
+4. 调用FWorkflowCentricApplication::PushTabFactories（FBlueprintEditor的一个基类）设置FWorkflowAllowedTabSet（所有面板的定义）
+5. 调用ToolbarExtender->AddToolBarExtension中注册Extension，
+
+### FWorkflowAllowedTabSet
+
+1. 面板的集合
+
+2. 调用FWorkflowAllowedTabSet::RegisterFactory注册每个面板实例化的定义
+
+### FWorkflowTabFactory
+
+1. 面板实例化定义的基类
+2. 继承并重写FWorkflowTabFactory::CreateTabBody实现特定面板的实例化
+3. 向FWorkflowAllowedTabSet的实例中注册该面板实例化定义（FWorkflowAllowedTabSet::RegisterFactory）
+

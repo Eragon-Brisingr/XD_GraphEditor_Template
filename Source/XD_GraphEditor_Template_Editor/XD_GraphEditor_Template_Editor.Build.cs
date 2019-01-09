@@ -44,6 +44,9 @@ public class XD_GraphEditor_Template_Editor : ModuleRules
                 "GraphEditor",
                 "ApplicationCore",
 
+                "Kismet",
+                "BlueprintGraph",
+
                 "XD_GraphEditor_Template",
 				// ... add private dependencies that you statically link with here ...	
 			}

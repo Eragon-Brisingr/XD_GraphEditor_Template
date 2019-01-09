@@ -12,13 +12,11 @@
 #include "PlatformApplicationMisc.h"
 #include "Editor_GraphNode_Template.h"
 #include "Editor.h"
+#include "DesignerApplicationMode_Template.h"
+#include "GraphApplicationMode_Template.h"
 
 
 #define LOCTEXT_NAMESPACE "GraphEditorToolkit_Template"
-
-const FName FGraphEditorToolkit_Template::DetailsTabId(TEXT("GraphEditorToolkit_TemplateDetailsTabId"));
-const FName FGraphEditorToolkit_Template::GraphTabId(TEXT("GraphEditorToolkit_TemplateGraphTabId"));
-
 
 FGraphEditorToolkit_Template::FGraphEditorToolkit_Template()
 {
@@ -84,12 +82,12 @@ FLinearColor FGraphEditorToolkit_Template::GetWorldCentricTabColorScale() const
 
 FName FGraphEditorToolkit_Template::GetToolkitFName() const
 {
-	return FName("Graph Editor");
+	return FName("Graph Editor Template");
 }
 
 FText FGraphEditorToolkit_Template::GetBaseToolkitName() const
 {
-	return LOCTEXT("AppLabel", "Graph Editor");
+	return LOCTEXT("AppLabel", "Graph Editor Template");
 }
 
 FString FGraphEditorToolkit_Template::GetWorldCentricTabPrefix() const
@@ -97,10 +95,19 @@ FString FGraphEditorToolkit_Template::GetWorldCentricTabPrefix() const
 	return LOCTEXT("WorldCentricTabPrefix", "Graph").ToString();
 }
 
-void FGraphEditorToolkit_Template::InitGraphAssetEditor(const EToolkitMode::Type InMode, const TSharedPtr<class IToolkitHost>& InToolkitHost, UBP_Graph_Template * InGraph)
+void FGraphEditorToolkit_Template::InitGarph_TemplateEditor(const EToolkitMode::Type InMode, const TSharedPtr<class IToolkitHost>& InToolkitHost, UEditorGraph_Blueprint_Template* InBP)
 {
-	GraphAsset = InGraph;
-	if (GraphAsset->EdGraph == nullptr)
+	GraphAsset = nullptr;
+
+// 	FGenericCommands::Register();
+// 	FGraphEditorCommands::Register();
+	BindToolkitCommands();
+
+	InitBlueprintEditor(InMode, InToolkitHost, { InBP }, true);
+
+	UpdatePreviewActor(GetBlueprintObj(), true);
+
+	if (GraphAsset && GraphAsset->EdGraph == nullptr)
 	{
 		GraphEditor_Template_Log("Creating a new graph.");
 		GraphAsset->EdGraph = CastChecked<UEditorGraph_Template>(FBlueprintEditorUtils::CreateNewGraph(GraphAsset, NAME_None, UEditorGraph_Template::StaticClass(), UEditorGraphSchema_Template::StaticClass()));
@@ -110,53 +117,70 @@ void FGraphEditorToolkit_Template::InitGraphAssetEditor(const EToolkitMode::Type
 		const UEdGraphSchema* Schema = GraphAsset->EdGraph->GetSchema();
 		Schema->CreateDefaultNodesForGraph(*GraphAsset->EdGraph);
 	}
-
-	FGenericCommands::Register();
-	FGraphEditorCommands::Register();
-	BindToolkitCommands();
-
-	TSharedRef<FTabManager::FLayout> Layout = FTabManager::NewLayout("LayoutName")
-		->AddArea
-		(
-			FTabManager::NewPrimaryArea()
-			->SetOrientation(Orient_Vertical)
-			->Split
-			(
-				FTabManager::NewStack()
-				->AddTab(GetToolbarTabId(), ETabState::OpenedTab)
-				->SetHideTabWell(true)
-				->SetSizeCoefficient(0.2f)
-			)
-			->Split
-			(
-				FTabManager::NewSplitter()
-				->SetOrientation(Orient_Horizontal)
-				->SetSizeCoefficient(0.8f)
-				->Split
-				(
-					FTabManager::NewStack()
-					->AddTab(DetailsTabId, ETabState::OpenedTab)
-					->SetHideTabWell(true)
-					->SetSizeCoefficient(0.15f)
-				)
-				->Split
-				(
-					FTabManager::NewStack()
-					->AddTab(GraphTabId, ETabState::OpenedTab)
-					->SetHideTabWell(true)
-					->SetSizeCoefficient(0.85f)
-				)
-			)
-		);
-
-	FAssetEditorToolkit::InitAssetEditor(InMode, InToolkitHost, FName("GraphEditorIdentifier"), Layout, true, true, GraphAsset);
 }
 
 void FGraphEditorToolkit_Template::BlueprintCompiled()
 {
-	UEdGraph* EdGraph = EdGraphEditor->GetCurrentGraph();
-	if (UEditorGraph_Template* MyGraph = Cast<UEditorGraph_Template>(EdGraph))
-		MyGraph->RefreshNodes();
+// 	UEdGraph* EdGraph = EdGraphEditor->GetCurrentGraph();
+// 	if (UEditorGraph_Template* MyGraph = Cast<UEditorGraph_Template>(EdGraph))
+// 		MyGraph->RefreshNodes();
+}
+
+void FGraphEditorToolkit_Template::InitalizeExtenders()
+{
+	FBlueprintEditor::InitalizeExtenders();
+
+// 	TSharedPtr<FExtender> MenuExtender = MakeShareable(new FExtender);
+// 
+// 	// Extend the File menu with asset actions
+// 	MenuExtender->AddMenuExtension(
+// 		"FileLoadAndSave",
+// 		EExtensionHook::After,
+// 		GetToolkitCommands(),
+// 		FMenuExtensionDelegate::CreateSP(this, &FWidgetBlueprintEditor::FillFileMenu));
+// 
+// 	AddMenuExtender(MenuExtender);
+}
+
+void FGraphEditorToolkit_Template::RegisterApplicationModes(const TArray<UBlueprint*>& InBlueprints, bool bShouldOpenInDefaultsMode, bool bNewlyCreated /*= false*/)
+{
+	//FBlueprintEditor::RegisterApplicationModes(InBlueprints, bShouldOpenInDefaultsMode, bNewlyCreated);
+
+	TSharedPtr<FGraphEditorToolkit_Template> ThisPtr(SharedThis(this));
+
+	// Create the modes and activate one (which will populate with a real layout)
+	TArray<TSharedRef<FApplicationMode>> TempModeList;
+	TempModeList.Add(MakeShareable(new FDesignerApplicationMode_Template(ThisPtr)));
+	TempModeList.Add(MakeShareable(new FGraphApplicationMode_Template(ThisPtr)));
+
+	for (TSharedRef<FApplicationMode>& AppMode : TempModeList)
+	{
+		AddApplicationMode(AppMode->GetModeName(), AppMode);
+	}
+
+	SetCurrentMode(FBlueprintApplicationModesTemplate::DesignerMode);
+}
+
+FGraphAppearanceInfo FGraphEditorToolkit_Template::GetGraphAppearance(class UEdGraph* InGraph) const
+{
+	FGraphAppearanceInfo AppearanceInfo = FBlueprintEditor::GetGraphAppearance(InGraph);
+
+	return AppearanceInfo;
+}
+
+void FGraphEditorToolkit_Template::AppendExtraCompilerResults(TSharedPtr<class IMessageLogListing> ResultsListing)
+{
+	FBlueprintEditor::AppendExtraCompilerResults(ResultsListing);
+}
+
+TSubclassOf<UEdGraphSchema> FGraphEditorToolkit_Template::GetDefaultSchemaClass() const
+{
+	return UEditorGraphSchema_Template::StaticClass();
+}
+
+class UEditorGraph_Blueprint_Template* FGraphEditorToolkit_Template::GetTemplateBlueprintObj() const
+{
+	return Cast<UEditorGraph_Blueprint_Template>(GetBlueprintObj());
 }
 
 void FGraphEditorToolkit_Template::SaveAsset_Execute()
@@ -166,30 +190,17 @@ void FGraphEditorToolkit_Template::SaveAsset_Execute()
 		UEditorGraph_Template* EdGraph = Cast<UEditorGraph_Template>(GraphAsset->EdGraph);
 		EdGraph->SaveGraph();
 	}
-	FAssetEditorToolkit::SaveAsset_Execute();
+	FBlueprintEditor::SaveAsset_Execute();
 }
 
 void FGraphEditorToolkit_Template::RegisterTabSpawners(const TSharedRef<FTabManager>& TabManager)
 {
-
-	WorkspaceMenuCategory = TabManager->AddLocalWorkspaceMenuCategory(LOCTEXT("EditorGraph_TemplateToolkitWorkspaceMenu", "Graph Editor"));
-	auto WorkspaceMenuCategoryRef = WorkspaceMenuCategory.ToSharedRef();
-	
-	TabManager->RegisterTabSpawner(DetailsTabId, FOnSpawnTab::CreateSP(this, &FGraphEditorToolkit_Template::HandleTabManagerSpawnTabDetails))
-		.SetDisplayName(LOCTEXT("DetailsTab", "Details"))
-		.SetGroup(WorkspaceMenuCategoryRef);
-	TabManager->RegisterTabSpawner(GraphTabId, FOnSpawnTab::CreateSP(this, &FGraphEditorToolkit_Template::HandleTabManagerSpawnTabGraph))
-		.SetDisplayName(LOCTEXT("GraphTab", "Graph Editor"))
-		.SetGroup(WorkspaceMenuCategoryRef);
-
-	FAssetEditorToolkit::RegisterTabSpawners(TabManager);
+	FBlueprintEditor::RegisterTabSpawners(TabManager);
 }
 
 void FGraphEditorToolkit_Template::UnregisterTabSpawners(const TSharedRef<FTabManager>& TabManager)
 {
-	FAssetEditorToolkit::UnregisterTabSpawners(TabManager);
-	TabManager->UnregisterTabSpawner(DetailsTabId);
-	TabManager->UnregisterTabSpawner(GraphTabId);
+	FBlueprintEditor::UnregisterTabSpawners(TabManager);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -374,11 +385,6 @@ void FGraphEditorToolkit_Template::OnCommandPaste()
 		GraphOwner->MarkPackageDirty();
 	}
 
-}
-
-bool FGraphEditorToolkit_Template::CanPasteNodes()
-{
-	return true;
 }
 
 void FGraphEditorToolkit_Template::OnCommandDuplicate()
