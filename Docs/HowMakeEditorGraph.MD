@@ -18,7 +18,8 @@
 
 ### UEdGraphSchema
 
-EdGraphSchema里定义了图表操作的大部分全局行为
+1. EdGraphSchema里定义了图表操作的大部分全局行为
+2. 在FBlueprintEditorUtils::CreateNewGraph中将UEdGraph和EdGraphSchema建立映射
 
 ### UEdGraph
 
@@ -126,4 +127,10 @@ GatherClasses 搜集UClass信息
 1. 面板实例化定义的基类
 2. 继承并重写FWorkflowTabFactory::CreateTabBody实现特定面板的实例化
 3. 向FWorkflowAllowedTabSet的实例中注册该面板实例化定义（FWorkflowAllowedTabSet::RegisterFactory）
+
+## S类型
+
+### SGraphEditor
+
+`SNew(SGraphEditor).AdditionalCommands(Commands).GraphToEdit(EdGraph);`
 

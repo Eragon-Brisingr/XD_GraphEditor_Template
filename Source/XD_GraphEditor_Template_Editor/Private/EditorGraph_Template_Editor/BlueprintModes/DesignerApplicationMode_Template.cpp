@@ -5,6 +5,8 @@
 #include "GraphEditorToolkit_Template.h"
 #include "BlueprintEditor.h"
 #include "PropertyEditorModule.h"
+#include "GraphEditor.h"
+#include "EditorGraph_Template.h"
 
 #define LOCTEXT_NAMESPACE "GraphEditor_Template"
 
@@ -142,11 +144,14 @@ struct FDesignerGraphSummoner_Template : public FWorkflowTabFactory
 public:
 	FDesignerGraphSummoner_Template(TSharedPtr<class FGraphEditorToolkit_Template> InBlueprintEditor);
 
+	TSharedPtr<class FGraphEditorToolkit_Template> InBlueprintEditor;
+
 	TSharedRef<SWidget> CreateTabBody(const FWorkflowTabSpawnInfo& Info) const override;
 };
 
 FDesignerGraphSummoner_Template::FDesignerGraphSummoner_Template(TSharedPtr<class FGraphEditorToolkit_Template> InBlueprintEditor)
-	:FWorkflowTabFactory(FDesignerApplicationMode_Template::GraphTabId, InBlueprintEditor)
+	:FWorkflowTabFactory(FDesignerApplicationMode_Template::GraphTabId, InBlueprintEditor),
+	InBlueprintEditor(InBlueprintEditor)
 {
 	TabLabel = LOCTEXT("DesingerGraph_Template_TabLabel", "图表");
 	TabIcon = FSlateIcon(FEditorStyle::GetStyleSetName(), "LevelEditor.Tabs.Details");
@@ -159,7 +164,9 @@ FDesignerGraphSummoner_Template::FDesignerGraphSummoner_Template(TSharedPtr<clas
 
 TSharedRef<SWidget> FDesignerGraphSummoner_Template::CreateTabBody(const FWorkflowTabSpawnInfo& Info) const
 {
-	return FWorkflowTabFactory::CreateTabBody(Info);
+	return SNew(SGraphEditor)
+		.AdditionalCommands(InBlueprintEditor->DesignerEditorCommands)
+		.GraphToEdit(InBlueprintEditor->DesignerGraph_Template->EdGraph);
 }
 
 FDesignerApplicationMode_Template::FDesignerApplicationMode_Template(TSharedPtr<class FGraphEditorToolkit_Template> GraphEditorToolkit)

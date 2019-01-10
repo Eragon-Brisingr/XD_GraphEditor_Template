@@ -46,7 +46,7 @@ TSharedRef<SDockTab> FGraphEditorToolkit_Template::HandleTabManagerSpawnTabDetai
 	FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
 
 	DetailsWidget = PropertyEditorModule.CreateDetailView(DetailsViewArgs);
-	DetailsWidget->SetObject(GraphAsset);
+	DetailsWidget->SetObject(DesignerGraph_Template);
 
 	return SNew(SDockTab)
 		.TabRole(ETabRole::PanelTab)
@@ -58,11 +58,11 @@ TSharedRef<SDockTab> FGraphEditorToolkit_Template::HandleTabManagerSpawnTabDetai
 TSharedRef<SDockTab> FGraphEditorToolkit_Template::HandleTabManagerSpawnTabGraph(const FSpawnTabArgs & Args)
 {
 
-	if (GraphAsset->EdGraph != nullptr)
+	if (DesignerGraph_Template->EdGraph != nullptr)
 	{
 		EdGraphEditor = SNew(SGraphEditor)
-			.AdditionalCommands(GraphEditorCommands)
-			.GraphToEdit(GraphAsset->EdGraph);
+			.AdditionalCommands(DesignerEditorCommands)
+			.GraphToEdit(DesignerGraph_Template->EdGraph);
 	}
 	else
 	{
@@ -97,7 +97,18 @@ FString FGraphEditorToolkit_Template::GetWorldCentricTabPrefix() const
 
 void FGraphEditorToolkit_Template::InitGarph_TemplateEditor(const EToolkitMode::Type InMode, const TSharedPtr<class IToolkitHost>& InToolkitHost, UEditorGraph_Blueprint_Template* InBP)
 {
-	GraphAsset = nullptr;
+	DesignerGraph_Template = InBP->DesignerGraph_Template;
+
+	if (DesignerGraph_Template->EdGraph == nullptr)
+	{
+		GraphEditor_Template_Log("Creating a new graph.");
+		DesignerGraph_Template->EdGraph = CastChecked<UEditorGraph_Template>(FBlueprintEditorUtils::CreateNewGraph(DesignerGraph_Template, NAME_None, UEditorGraph_Template::StaticClass(), UEditorGraphSchema_Template::StaticClass()));
+		DesignerGraph_Template->EdGraph->bAllowDeletion = false;
+
+		//Give the schema a chance to fill out any required nodes (like the results node)
+		const UEdGraphSchema* Schema = DesignerGraph_Template->EdGraph->GetSchema();
+		Schema->CreateDefaultNodesForGraph(*DesignerGraph_Template->EdGraph);
+	}
 
 // 	FGenericCommands::Register();
 // 	FGraphEditorCommands::Register();
@@ -106,17 +117,6 @@ void FGraphEditorToolkit_Template::InitGarph_TemplateEditor(const EToolkitMode::
 	InitBlueprintEditor(InMode, InToolkitHost, { InBP }, true);
 
 	UpdatePreviewActor(GetBlueprintObj(), true);
-
-	if (GraphAsset && GraphAsset->EdGraph == nullptr)
-	{
-		GraphEditor_Template_Log("Creating a new graph.");
-		GraphAsset->EdGraph = CastChecked<UEditorGraph_Template>(FBlueprintEditorUtils::CreateNewGraph(GraphAsset, NAME_None, UEditorGraph_Template::StaticClass(), UEditorGraphSchema_Template::StaticClass()));
-		GraphAsset->EdGraph->bAllowDeletion = false;
-
-		//Give the schema a chance to fill out any required nodes (like the results node)
-		const UEdGraphSchema* Schema = GraphAsset->EdGraph->GetSchema();
-		Schema->CreateDefaultNodesForGraph(*GraphAsset->EdGraph);
-	}
 }
 
 void FGraphEditorToolkit_Template::BlueprintCompiled()
@@ -185,9 +185,9 @@ class UEditorGraph_Blueprint_Template* FGraphEditorToolkit_Template::GetTemplate
 
 void FGraphEditorToolkit_Template::SaveAsset_Execute()
 {
-	if (GraphAsset && GraphAsset->EdGraph)
+	if (DesignerGraph_Template && DesignerGraph_Template->EdGraph)
 	{
-		UEditorGraph_Template* EdGraph = Cast<UEditorGraph_Template>(GraphAsset->EdGraph);
+		UEditorGraph_Template* EdGraph = Cast<UEditorGraph_Template>(DesignerGraph_Template->EdGraph);
 		EdGraph->SaveGraph();
 	}
 	FBlueprintEditor::SaveAsset_Execute();
@@ -207,69 +207,69 @@ void FGraphEditorToolkit_Template::UnregisterTabSpawners(const TSharedRef<FTabMa
 // Commands and Bindings
 void FGraphEditorToolkit_Template::BindToolkitCommands()
 {
-	if (!GraphEditorCommands.IsValid())
+	if (!DesignerEditorCommands.IsValid())
 	{
-		GraphEditorCommands = MakeShareable(new FUICommandList());
+		DesignerEditorCommands = MakeShareable(new FUICommandList());
 
-		GraphEditorCommands->MapAction
+		DesignerEditorCommands->MapAction
 		(
 			FGenericCommands::Get().SelectAll,
-			FExecuteAction::CreateRaw(this, &FGraphEditorToolkit_Template::OnCommandSelectAllNodes),
-			FCanExecuteAction::CreateRaw(this, &FGraphEditorToolkit_Template::CanSelectAllNodes)
+			FExecuteAction::CreateRaw(this, &FGraphEditorToolkit_Template::OnDesignerCommandSelectAllNodes),
+			FCanExecuteAction::CreateRaw(this, &FGraphEditorToolkit_Template::CanDesignerSelectAllNodes)
 		);
 
-		GraphEditorCommands->MapAction
+		DesignerEditorCommands->MapAction
 		(
 			FGenericCommands::Get().Cut,
-			FExecuteAction::CreateRaw(this, &FGraphEditorToolkit_Template::OnCommandCut),
-			FCanExecuteAction::CreateRaw(this, &FGraphEditorToolkit_Template::CanCutNodes)
+			FExecuteAction::CreateRaw(this, &FGraphEditorToolkit_Template::OnDesignerCommandCut),
+			FCanExecuteAction::CreateRaw(this, &FGraphEditorToolkit_Template::CanDesignerCutNodes)
 		);
 
-		GraphEditorCommands->MapAction
+		DesignerEditorCommands->MapAction
 		(
 			FGenericCommands::Get().Copy,
-			FExecuteAction::CreateRaw(this, &FGraphEditorToolkit_Template::OnCommandCopy),
-			FCanExecuteAction::CreateRaw(this, &FGraphEditorToolkit_Template::CanCopyNodes)
+			FExecuteAction::CreateRaw(this, &FGraphEditorToolkit_Template::OnDesignerCommandCopy),
+			FCanExecuteAction::CreateRaw(this, &FGraphEditorToolkit_Template::CanDesignerCopyNodes)
 		);
 
-		GraphEditorCommands->MapAction
+		DesignerEditorCommands->MapAction
 		(
 			FGenericCommands::Get().Paste,
-			FExecuteAction::CreateRaw(this, &FGraphEditorToolkit_Template::OnCommandPaste),
-			FCanExecuteAction::CreateRaw(this, &FGraphEditorToolkit_Template::CanPasteNodes)
+			FExecuteAction::CreateRaw(this, &FGraphEditorToolkit_Template::OnDesignerCommandPaste),
+			FCanExecuteAction::CreateRaw(this, &FGraphEditorToolkit_Template::CanDesignerPasteNodes)
 		);
 
-		GraphEditorCommands->MapAction
+		DesignerEditorCommands->MapAction
 		(
 			FGenericCommands::Get().Duplicate,
-			FExecuteAction::CreateRaw(this, &FGraphEditorToolkit_Template::OnCommandDuplicate),
-			FCanExecuteAction::CreateRaw(this, &FGraphEditorToolkit_Template::CanDuplicateNodes)
+			FExecuteAction::CreateRaw(this, &FGraphEditorToolkit_Template::OnDesignerCommandDuplicate),
+			FCanExecuteAction::CreateRaw(this, &FGraphEditorToolkit_Template::CanDesignerDuplicateNodes)
 		);
 
-		GraphEditorCommands->MapAction
+		DesignerEditorCommands->MapAction
 		(
 			FGenericCommands::Get().Delete,
-			FExecuteAction::CreateRaw(this, &FGraphEditorToolkit_Template::OnCommandDelete),
-			FCanExecuteAction::CreateRaw(this, &FGraphEditorToolkit_Template::CanDeleteNodes)
+			FExecuteAction::CreateRaw(this, &FGraphEditorToolkit_Template::OnDesignerCommandDelete),
+			FCanExecuteAction::CreateRaw(this, &FGraphEditorToolkit_Template::CanDesignerDeleteNodes)
 		);
 
 	}
 }
 
-void FGraphEditorToolkit_Template::OnCommandSelectAllNodes()
+void FGraphEditorToolkit_Template::OnDesignerCommandSelectAllNodes()
 {
 	if (EdGraphEditor.IsValid())
 		EdGraphEditor->SelectAllNodes();
 }
 
-bool FGraphEditorToolkit_Template::CanSelectAllNodes()
+bool FGraphEditorToolkit_Template::CanDesignerSelectAllNodes()
 {
 	return true;
 }
 
-void FGraphEditorToolkit_Template::OnCommandCut()
+void FGraphEditorToolkit_Template::OnDesignerCommandCut()
 {
-	OnCommandCopy();
+	OnDesignerCommandCopy();
 
 	const FGraphPanelSelectionSet OldSelectedNodes = EdGraphEditor->GetSelectedNodes();
 	EdGraphEditor->ClearSelectionSet();
@@ -282,7 +282,7 @@ void FGraphEditorToolkit_Template::OnCommandCut()
 		}
 	}
 
-	OnCommandDelete();
+	OnDesignerCommandDelete();
 
 	EdGraphEditor->ClearSelectionSet();
 
@@ -294,12 +294,12 @@ void FGraphEditorToolkit_Template::OnCommandCut()
 	}
 }
 
-bool FGraphEditorToolkit_Template::CanCutNodes()
+bool FGraphEditorToolkit_Template::CanDesignerCutNodes()
 {
 	return true;
 }
 
-void FGraphEditorToolkit_Template::OnCommandCopy()
+void FGraphEditorToolkit_Template::OnDesignerCommandCopy()
 {
 	FGraphPanelSelectionSet SelectedNodes = GetSelectedNodes();
 	FString ExportedText;
@@ -324,12 +324,12 @@ void FGraphEditorToolkit_Template::OnCommandCopy()
 	}
 }
 
-bool FGraphEditorToolkit_Template::CanCopyNodes()
+bool FGraphEditorToolkit_Template::CanDesignerCopyNodes()
 {
 	return true;
 }
 
-void FGraphEditorToolkit_Template::OnCommandPaste()
+void FGraphEditorToolkit_Template::OnDesignerCommandPaste()
 {
 
 	const FVector2D PasteLocation = EdGraphEditor->GetPasteLocation();
@@ -346,7 +346,7 @@ void FGraphEditorToolkit_Template::OnCommandPaste()
 	for (TSet<UEdGraphNode*>::TIterator It(ImportedNodes); It; ++It)
 	{
 		UEditor_GraphNode_Template* Node = Cast<UEditor_GraphNode_Template>(*It);
-		GraphAsset->AddNode(Node->AssetNode);
+		DesignerGraph_Template->AddNode(Node->AssetNode);
 	}
 
 	FVector2D AvgNodePosition(0.0f, 0.0f);
@@ -387,18 +387,23 @@ void FGraphEditorToolkit_Template::OnCommandPaste()
 
 }
 
-void FGraphEditorToolkit_Template::OnCommandDuplicate()
-{
-	OnCommandCopy();
-	OnCommandPaste();
-}
-
-bool FGraphEditorToolkit_Template::CanDuplicateNodes()
+bool FGraphEditorToolkit_Template::CanDesignerPasteNodes()
 {
 	return true;
 }
 
-void FGraphEditorToolkit_Template::OnCommandDelete()
+void FGraphEditorToolkit_Template::OnDesignerCommandDuplicate()
+{
+	OnDesignerCommandCopy();
+	OnDesignerCommandPaste();
+}
+
+bool FGraphEditorToolkit_Template::CanDesignerDuplicateNodes()
+{
+	return true;
+}
+
+void FGraphEditorToolkit_Template::OnDesignerCommandDelete()
 {
 
 	EdGraphEditor->GetCurrentGraph()->Modify();
@@ -416,7 +421,7 @@ void FGraphEditorToolkit_Template::OnCommandDelete()
 	}
 }
 
-bool FGraphEditorToolkit_Template::CanDeleteNodes()
+bool FGraphEditorToolkit_Template::CanDesignerDeleteNodes()
 {
 	return true;
 }

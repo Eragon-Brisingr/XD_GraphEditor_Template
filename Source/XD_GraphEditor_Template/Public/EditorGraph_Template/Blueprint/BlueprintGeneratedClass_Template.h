@@ -13,5 +13,8 @@ UCLASS()
 class XD_GRAPHEDITOR_TEMPLATE_API UBlueprintGeneratedClass_Template : public UBlueprintGeneratedClass
 {
 	GENERATED_BODY()
-	
+public:
+	UPROPERTY()
+	class UBP_Graph_Template* DesignerGraph_Template;
+
 };

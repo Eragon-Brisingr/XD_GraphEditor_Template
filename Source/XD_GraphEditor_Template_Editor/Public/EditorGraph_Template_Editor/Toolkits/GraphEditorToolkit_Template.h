@@ -40,12 +40,12 @@ public:
 	// End FBlueprintEditor
 
 	class UEditorGraph_Blueprint_Template* GetTemplateBlueprintObj() const;
+
+	TSharedPtr<FUICommandList> DesignerEditorCommands;
+	UBP_Graph_Template* DesignerGraph_Template;
 private:
-	UBP_Graph_Template* GraphAsset;
 	TSharedPtr<SGraphEditor> EdGraphEditor;
 	TSharedPtr<IDetailsView> DetailsWidget;
-
-	TSharedPtr<FUICommandList> GraphEditorCommands;
 
 	FGraphPanelSelectionSet GetSelectedNodes();
 	TSharedRef<SDockTab> HandleTabManagerSpawnTabDetails(const FSpawnTabArgs& Args);
@@ -53,21 +53,22 @@ private:
 	void BindToolkitCommands();
 
 	//Delegates
-	void OnCommandSelectAllNodes();
-	bool CanSelectAllNodes();
+	void OnDesignerCommandSelectAllNodes();
+	bool CanDesignerSelectAllNodes();
 
-	void OnCommandCopy();
-	bool CanCopyNodes();
+	void OnDesignerCommandCopy();
+	bool CanDesignerCopyNodes();
 
-	void OnCommandPaste();
+	void OnDesignerCommandPaste();
+	bool CanDesignerPasteNodes();
 
-	void OnCommandCut();
-	bool CanCutNodes();
+	void OnDesignerCommandCut();
+	bool CanDesignerCutNodes();
 
-	void OnCommandDuplicate();
-	bool CanDuplicateNodes();
+	void OnDesignerCommandDuplicate();
+	bool CanDesignerDuplicateNodes();
 
-	void OnCommandDelete();
-	bool CanDeleteNodes();
+	void OnDesignerCommandDelete();
+	bool CanDesignerDeleteNodes();
 
 };
