@@ -13,20 +13,21 @@ UEdGraphNode * FEditorGraph_NewNode_SchemaAction_Template::PerformAction(UEdGrap
 	ParentGraph->Modify();
 
 
-	UBP_Graph_Template* GraphAsset = CastChecked<UBP_Graph_Template>(ParentGraph->GetOuter());
-	GraphAsset->Modify();
+	UBP_Graph_Template* Graph_Template = CastChecked<UBP_Graph_Template>(ParentGraph->GetOuter());
+	Graph_Template->Modify();
 
-	UBP_GraphNode_Template* AssetNode = GraphAsset->SpawnNodeInsideGraph<UBP_GraphNode_Template>(NewNodeClass);
+	UBP_GraphNode_Template* AssetNode = Graph_Template->SpawnNodeInsideGraph<UBP_GraphNode_Template>(NewNodeClass);
 
-    UEdGraphNode* EditorNode=CreateEditorNode(ParentGraph,bSelectNewNode,AssetNode);
-	
-    //EditorNode->AllocateDefaultPins();   for some reason it was called 2 times even if I only call it here
-    EditorNode->AutowireNewNode(FromPin);
-    EditorNode->NodePosX = Location.X;
-    EditorNode->NodePosY = Location.Y;
+	UEdGraphNode* EditorNode = CreateEditorNode(ParentGraph, bSelectNewNode, AssetNode);
+
+	//EditorNode->AllocateDefaultPins();   for some reason it was called 2 times even if I only call it here
+	EditorNode->AutowireNewNode(FromPin);
+	EditorNode->NodePosX = Location.X;
+	EditorNode->NodePosY = Location.Y;
 
 	return EditorNode;
 }
+
 UEdGraphNode * FEditorGraph_NewNode_SchemaAction_Template::CreateEditorNode(UEdGraph * ParentGraph, bool bSelectNewNode, UBP_GraphNode_Template* AssetNode)
 {
     FGraphNodeCreator<UEditor_GraphNode_Template>Creator(*ParentGraph);

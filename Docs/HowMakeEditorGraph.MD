@@ -93,7 +93,9 @@ GatherClasses 搜集UClass信息
 
 构造函数中FGraphEditor_ClassHelper_Template(UClass* InRootClass); InRootClass表示搜集的根
 
+### FGraphEditorToolkit_Template::HandleTabManagerSpawnTabGraph
 
+创建了图表控件
 
 # 拓展蓝图编辑器
 

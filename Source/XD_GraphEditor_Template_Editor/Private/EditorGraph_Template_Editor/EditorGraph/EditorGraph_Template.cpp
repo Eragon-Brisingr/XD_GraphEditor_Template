@@ -36,8 +36,10 @@ void UEditorGraph_Template::ClearOldLinks()
 	for (UEdGraphNode* EditorNode : Nodes)
 	{
 		UEditor_GraphNode_Template* EdNode = Cast<UEditor_GraphNode_Template>(EditorNode);
-		if (EdNode)
-			EdNode->AssetNode->ClearLinks();
+		if (EdNode && EdNode->BP_Node_Template)
+		{
+			EdNode->BP_Node_Template->ClearLinks();
+		}
 	}
 }
 
@@ -49,7 +51,7 @@ void UEditorGraph_Template::LinkAssetNodes()
 	{
 		if (UEditor_GraphNode_Template* EdNode = Cast<UEditor_GraphNode_Template>(EditorNode))
 		{
-			UBP_GraphNode_Template* NodeAsset = EdNode->AssetNode;
+			UBP_GraphNode_Template* NodeAsset = EdNode->BP_Node_Template;
 			if (NodeAsset != nullptr)
 			{
 
@@ -64,8 +66,9 @@ void UEditorGraph_Template::LinkAssetNodes()
 
 						TArray<UEdGraphPin*>& EdPinsChildren = Pin->LinkedTo;
 						for (UEdGraphPin* LinkedPin : EdPinsChildren)
-						    Children.Add(LinkedPin->GetOwningNode());
-	
+						{
+							Children.Add(LinkedPin->GetOwningNode());
+						}
 					}
 
 				}
@@ -107,8 +110,8 @@ void UEditorGraph_Template::MapNamedNodes()
 			FText Name = BP_GraphNode_Template->GetEdNodeName();
             if (!Name.IsEmpty())
             {
-                Graph->NamedNodes.Add(Name.ToString(), BP_GraphNode_Template->AssetNode);
-                Graph->NodesNames.Add(BP_GraphNode_Template->AssetNode, Name.ToString());
+                Graph->NamedNodes.Add(Name.ToString(), BP_GraphNode_Template->BP_Node_Template);
+                Graph->NodesNames.Add(BP_GraphNode_Template->BP_Node_Template, Name.ToString());
             }
 		}
 	}

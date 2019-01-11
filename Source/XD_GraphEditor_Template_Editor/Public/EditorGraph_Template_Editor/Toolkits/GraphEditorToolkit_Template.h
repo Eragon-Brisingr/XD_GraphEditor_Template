@@ -29,7 +29,7 @@ public:
 	virtual void SaveAsset_Execute() override;
 
 	virtual void InitGarph_TemplateEditor(const EToolkitMode::Type InMode, const TSharedPtr<class IToolkitHost>& InToolkitHost, UEditorGraph_Blueprint_Template* InBP);
-	virtual void BlueprintCompiled();
+	virtual void BlueprintCompiled(class UBlueprint* Blueprint);
 
 	// Begin FBlueprintEditor
 	void InitalizeExtenders() override;
@@ -41,34 +41,5 @@ public:
 
 	class UEditorGraph_Blueprint_Template* GetTemplateBlueprintObj() const;
 
-	TSharedPtr<FUICommandList> DesignerEditorCommands;
 	UBP_Graph_Template* DesignerGraph_Template;
-private:
-	TSharedPtr<SGraphEditor> EdGraphEditor;
-	TSharedPtr<IDetailsView> DetailsWidget;
-
-	FGraphPanelSelectionSet GetSelectedNodes();
-	TSharedRef<SDockTab> HandleTabManagerSpawnTabDetails(const FSpawnTabArgs& Args);
-	TSharedRef<SDockTab> HandleTabManagerSpawnTabGraph(const FSpawnTabArgs& Args);
-	void BindToolkitCommands();
-
-	//Delegates
-	void OnDesignerCommandSelectAllNodes();
-	bool CanDesignerSelectAllNodes();
-
-	void OnDesignerCommandCopy();
-	bool CanDesignerCopyNodes();
-
-	void OnDesignerCommandPaste();
-	bool CanDesignerPasteNodes();
-
-	void OnDesignerCommandCut();
-	bool CanDesignerCutNodes();
-
-	void OnDesignerCommandDuplicate();
-	bool CanDesignerDuplicateNodes();
-
-	void OnDesignerCommandDelete();
-	bool CanDesignerDeleteNodes();
-
 };

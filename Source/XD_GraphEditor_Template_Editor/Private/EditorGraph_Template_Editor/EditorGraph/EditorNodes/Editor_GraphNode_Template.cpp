@@ -35,13 +35,16 @@ TSharedPtr<SWidget> UEditor_GraphNode_Template::GetContentWidget()
 
 	FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
 	TSharedPtr<IDetailsView> View = PropertyEditorModule.CreateDetailView(DetailsViewArgs);
-	View->SetObject(AssetNode);
+	View->SetObject(BP_Node_Template);
 	return View;
 }
 
 void UEditor_GraphNode_Template::UpdateVisualNode()
 {
-	SlateNode->UpdateGraphNode();
+	if (SlateNode.IsValid())
+	{
+		SlateNode->UpdateGraphNode();
+	}
 }
 
 void UEditor_GraphNode_Template::SaveNodesAsChildren(TArray<UEdGraphNode*>& Children)
@@ -50,18 +53,18 @@ void UEditor_GraphNode_Template::SaveNodesAsChildren(TArray<UEdGraphNode*>& Chil
     {
         UEditor_GraphNode_Template* Node = Cast<UEditor_GraphNode_Template>(Child);
         if (Node)
-            AssetNode->LinkArgumentNodeAsChild(Node->AssetNode);
+            BP_Node_Template->LinkArgumentNodeAsChild(Node->BP_Node_Template);
     }
 }
 
 bool UEditor_GraphNode_Template::HasOutputPins()
 {
-	return AssetNode ? AssetNode->HasOutputPins() : true;
+	return BP_Node_Template ? BP_Node_Template->HasOutputPins() : true;
 }
 
 bool UEditor_GraphNode_Template::HasInputPins()
 {
-	return AssetNode ? AssetNode->HasInputPins() : true;
+	return BP_Node_Template ? BP_Node_Template->HasInputPins() : true;
 }
 
 void UEditor_GraphNode_Template::AllocateDefaultPins()
@@ -75,30 +78,34 @@ void UEditor_GraphNode_Template::AllocateDefaultPins()
 
 FText UEditor_GraphNode_Template::GetNodeTitle(ENodeTitleType::Type TitleType) const
 {
-    switch (TitleType)
-    {
-    case ENodeTitleType::Type::MenuTitle:
-        return AssetNode->GetNodeTitle();
-    default:
-        FText Title = GetEdNodeName();
-        return Title.IsEmpty() ? AssetNode->GetNodeTitle() : Title;
-    }
+	if (BP_Node_Template)
+	{
+		switch (TitleType)
+		{
+		case ENodeTitleType::Type::MenuTitle:
+			return BP_Node_Template->GetNodeTitle();
+		default:
+			FText Title = GetEdNodeName();
+			return Title.IsEmpty() ? BP_Node_Template->GetNodeTitle() : Title;
+		}
+	}
+	return GetEdNodeName();
 }
 
 void UEditor_GraphNode_Template::PrepareForCopying()
 {
-	if (AssetNode)
-		AssetNode->Rename(nullptr, this, REN_DontCreateRedirectors | REN_DoNotDirty);
+	if (BP_Node_Template)
+		BP_Node_Template->Rename(nullptr, this, REN_DontCreateRedirectors | REN_DoNotDirty);
 	UEdGraphNode::PrepareForCopying();
 }
 
 void UEditor_GraphNode_Template::DestroyNode()
 {
-	if (AssetNode)
+	if (BP_Node_Template)
 	{
-		AssetNode->GetGraph()->RemoveNode(AssetNode);
-		AssetNode->ConditionalBeginDestroy();
-		AssetNode = nullptr;
+		BP_Node_Template->GetGraph()->RemoveNode(BP_Node_Template);
+		BP_Node_Template->ConditionalBeginDestroy();
+		BP_Node_Template = nullptr;
 	}
 	UEdGraphNode::DestroyNode();
 }
@@ -143,22 +150,22 @@ void UEditor_GraphNode_Template::GetContextMenuActions(const FGraphNodeContextMe
 
 void UEditor_GraphNode_Template::SetAssetNode(UBP_GraphNode_Template * InNode)
 {
-	AssetNode = InNode;
+	BP_Node_Template = InNode;
 }
 
 UBP_GraphNode_Template* UEditor_GraphNode_Template::GetAssetNode()
 {
-	return AssetNode;
+	return BP_Node_Template;
 }
 
 void UEditor_GraphNode_Template::PostCopyNode()
 {
-	if (AssetNode)
+	if (BP_Node_Template)
 	{
 		UEdGraph* EdGraph = GetGraph();
 		UObject* ParentAsset = EdGraph ? EdGraph->GetOuter() : nullptr;
-		AssetNode->Rename(nullptr, ParentAsset, REN_DontCreateRedirectors | REN_DoNotDirty);
-		AssetNode->ClearFlags(RF_Transient);
+		BP_Node_Template->Rename(nullptr, ParentAsset, REN_DontCreateRedirectors | REN_DoNotDirty);
+		BP_Node_Template->ClearFlags(RF_Transient);
 	}
 }
 

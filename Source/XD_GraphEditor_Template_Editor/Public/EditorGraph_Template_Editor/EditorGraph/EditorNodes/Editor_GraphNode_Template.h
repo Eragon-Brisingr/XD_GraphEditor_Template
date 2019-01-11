@@ -47,10 +47,10 @@ public:
 protected:
 	virtual bool HasOutputPins();
 	virtual bool HasInputPins();
-	TSharedPtr<SGraphNode>SlateNode;
+	TSharedPtr<SGraphNode> SlateNode;
 public:
 	UPROPERTY(Instanced)
-	UBP_GraphNode_Template* AssetNode = nullptr;
+	UBP_GraphNode_Template* BP_Node_Template = nullptr;
 
 protected:
 	UPROPERTY()
