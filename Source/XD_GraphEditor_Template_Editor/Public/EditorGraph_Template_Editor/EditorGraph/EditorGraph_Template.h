@@ -18,9 +18,7 @@ class UEditorGraph_Template : public UEdGraph
 	GENERATED_BODY()
 	
 public:
-
-	virtual bool IsNameUnique(const FText& InName);
-	virtual void SaveGraph();
+	virtual void BuildGraph();
 	virtual void ClearOldLinks();
 	virtual void LinkAssetNodes();
 	virtual void RefreshNodes();

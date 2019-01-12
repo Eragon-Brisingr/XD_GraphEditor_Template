@@ -23,19 +23,19 @@ public:
 	UBP_Graph_Template();
 
 	UPROPERTY(BlueprintReadOnly, Category = "Graph Data")
-		TArray<UBP_GraphNode_Template*>Nodes;
+	TArray<UBP_GraphNode_Template*> Nodes;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Graph Data")
-		TMap<FString, UBP_GraphNode_Template*>NamedNodes;
+	TMap<FString, UBP_GraphNode_Template*> NamedNodes;
 
     UPROPERTY(BlueprintReadOnly, Category = "Graph Data")
-        TMap<UBP_GraphNode_Template*, FString>NodesNames;
+    TMap<UBP_GraphNode_Template*, FString> NodesNames;
 
     UPROPERTY(BlueprintReadWrite, Category = "Graph Data")
-        UObject* Owner;
+    UObject* Owner;
 
     UFUNCTION(BlueprintCallable, Category = "Graph Data")
-        void InitGraph(UObject* ParentObject);
+    void InitGraph(UObject* ParentObject);
 
 
 

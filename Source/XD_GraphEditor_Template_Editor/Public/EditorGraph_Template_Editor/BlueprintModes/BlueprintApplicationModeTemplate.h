@@ -26,6 +26,8 @@ class XD_GRAPHEDITOR_TEMPLATE_EDITOR_API FBlueprintApplicationModeTemplate : pub
 public:
 	FBlueprintApplicationModeTemplate(TSharedPtr<class FGraphEditorToolkit_Template> GraphEditorToolkit, FName InModeName);
 
+	void AddModeSwitchToolBarExtension();
+
 protected:
 	UEditorGraph_Blueprint_Template* GetBlueprint() const;
 

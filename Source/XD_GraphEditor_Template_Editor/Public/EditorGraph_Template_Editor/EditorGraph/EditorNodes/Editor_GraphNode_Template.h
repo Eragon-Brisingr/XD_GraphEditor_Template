@@ -33,12 +33,6 @@ public:
 
 	virtual void PostCopyNode();
 
-	virtual bool RenameUniqueNode(const FText& NewName);
-
-	virtual FText GetEdNodeName() const;
-	virtual void SetEdNodeName(const FText& Name);
-	virtual void SetEdNodeName(const FName& Name);
-
 	virtual TSharedPtr<SWidget> GetContentWidget();
 
 	virtual void UpdateVisualNode();
@@ -51,9 +45,5 @@ protected:
 public:
 	UPROPERTY(Instanced)
 	UBP_GraphNode_Template* BP_Node_Template = nullptr;
-
-protected:
-	UPROPERTY()
-	FText EdNodeName;
 
 };

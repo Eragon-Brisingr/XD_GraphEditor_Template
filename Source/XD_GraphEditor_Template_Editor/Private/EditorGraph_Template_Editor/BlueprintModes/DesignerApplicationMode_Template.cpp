@@ -6,11 +6,13 @@
 #include "BlueprintEditor.h"
 #include "PropertyEditorModule.h"
 #include "GraphEditor.h"
-#include "EditorGraph_Template.h"
 #include "GenericCommands.h"
 #include "EdGraphUtilities.h"
 #include "PlatformApplicationMisc.h"
+#include "SBlueprintEditorToolbar.h"
+#include "BlueprintEditorUtils.h"
 #include "Editor_GraphNode_Template.h"
+#include "EditorGraph_Template.h"
 
 #define LOCTEXT_NAMESPACE "GraphEditor_Template"
 
@@ -25,6 +27,8 @@ public:
 public:
 	TSharedPtr<SEditableTextBox> NameTextBox;
 	TSharedPtr<class IDetailsView> PropertyView;
+
+	TWeakPtr<FGraphEditorToolkit_Template> Editor;
 
 	void Construct(const FArguments& InArgs)
 	{
@@ -47,7 +51,6 @@ public:
 		ChildSlot
 		[
 			SNew(SVerticalBox)
-
 			+ SVerticalBox::Slot()
 			.AutoHeight()
 			.Padding(0, 0, 0, 6)
@@ -65,20 +68,15 @@ public:
 				]
 
 				+ SHorizontalBox::Slot()
-				.AutoWidth()
+				.HAlign(HAlign_Fill)
 				.Padding(0, 0, 6, 0)
 				[
-					SNew(SBox)
-					.WidthOverride(200.0f)
-					.VAlign(VAlign_Center)
-					[
-						SAssignNew(NameTextBox, SEditableTextBox)
-						.SelectAllTextWhenFocused(true)
-						.HintText(LOCTEXT("Name", "Name"))
-						.Text(this, &SDetails_TemplateView::GetNameText)
-						.OnTextChanged(this, &SDetails_TemplateView::HandleNameTextChanged)
-						.OnTextCommitted(this, &SDetails_TemplateView::HandleNameTextCommitted)
-					]
+					SAssignNew(NameTextBox, SEditableTextBox)
+					.SelectAllTextWhenFocused(true)
+					.HintText(LOCTEXT("Name", "Name"))
+					.Text(this, &SDetails_TemplateView::GetNameText)
+					.OnTextChanged(this, &SDetails_TemplateView::HandleNameTextChanged)
+					.OnTextCommitted(this, &SDetails_TemplateView::HandleNameTextCommitted)
 				]
 
 				+ SHorizontalBox::Slot()
@@ -90,7 +88,7 @@ public:
 					.Padding(FMargin(3,1,3,1))
 					[
 						SNew(STextBlock)
-						.Text(LOCTEXT("IsVariable", "Is Variable"))
+						.Text(LOCTEXT("蓝图可见", "蓝图可见"))
 					]
 				]
 			]
@@ -128,27 +126,108 @@ public:
 		{
 			if (UObject* Obj = Selections[0].Get())
 			{
-				return true;
+				if (Obj->Rename(*InText.ToString(), nullptr, REN_Test))
+				{
+					return true;
+				}
+				else
+				{
+					OutErrorMessage = LOCTEXT("Rename Error", "存在重名对象，无法重命名");
+					return false;
+				}
 			}
 		}
 		return false;
 	}
 
-	void HandleNameTextChanged(const FText& Text){}
+	void HandleNameTextChanged(const FText& Text)
+	{
+		FText OutErrorMessage;
+		if (!HandleVerifyNameTextChanged(Text, OutErrorMessage))
+		{
+			NameTextBox->SetError(OutErrorMessage);
+		}
+		else
+		{
+			NameTextBox->SetError(FText::GetEmpty());
+		}
+	}
+
 	void HandleNameTextCommitted(const FText& Text, ETextCommit::Type CommitType)
+	{
+		UEditorGraph_Blueprint_Template* Blueprint = Editor.Pin()->GetTemplateBlueprintObj();
+
+		const TArray<TWeakObjectPtr<UObject>>& Selections = PropertyView->GetSelectedObjects();
+		if (Selections.Num() == 1)
+		{
+			if (UBP_GraphNode_Template* Node = Cast<UBP_GraphNode_Template>(Selections[0].Get()))
+			{
+				const TCHAR* NewName = *Text.ToString();
+
+				if (Node->Rename(NewName, nullptr, REN_Test))
+				{
+					if (Node->bIsVariable)
+					{
+						FBlueprintEditorUtils::RenameMemberVariable(Blueprint, Node->GetFName(), NewName);
+					}
+					Node->Rename(NewName);
+
+					Editor.Pin()->GetEditorGraph()->RefreshNodes();
+				}
+			}
+		}
+
+		if (CommitType == ETextCommit::OnUserMovedFocus || CommitType == ETextCommit::OnCleared)
+		{
+			NameTextBox->SetError(FText::GetEmpty());
+		}
+	}
+
+	ECheckBoxState GetIsVariable() const 
 	{
 		const TArray<TWeakObjectPtr<UObject>>& Selections = PropertyView->GetSelectedObjects();
 		if (Selections.Num() == 1)
 		{
-			if (UObject* Obj = Selections[0].Get())
+			if (UBP_GraphNode_Template* Node = Cast<UBP_GraphNode_Template>(Selections[0].Get()))
 			{
-				Obj->Rename(*Text.ToString());
+				return Node->bIsVariable ? ECheckBoxState::Checked : ECheckBoxState::Unchecked;
+			}
+		}
+		return ECheckBoxState::Unchecked; 
+	}
+
+	void HandleIsVariableChanged(ECheckBoxState CheckState)
+	{
+		const FScopedTransaction Transaction(LOCTEXT("VariableToggle", "Variable Toggle"));
+
+		UEditorGraph_Blueprint_Template* Blueprint = Editor.Pin()->GetTemplateBlueprintObj();
+
+		const TArray<TWeakObjectPtr<UObject>>& Selections = PropertyView->GetSelectedObjects();
+		for (TWeakObjectPtr<UObject> Obj : Selections)
+		{
+			if (UBP_GraphNode_Template* Node = Cast<UBP_GraphNode_Template>(Obj.Get()))
+			{
+				if (CheckState == ECheckBoxState::Checked)
+				{
+					if (Node->bIsVariable == false)
+					{
+						if (FBlueprintEditorUtils::AddMemberVariable(Blueprint, Node->GetFName(), FEdGraphPinType(UEdGraphSchema_K2::PC_Object, UEdGraphSchema_K2::PC_Object, Node->GetClass(), EPinContainerType::None, false, FEdGraphTerminalType())))
+						{
+							Node->bIsVariable = true;
+						}
+					}
+				}
+				else
+				{
+					if (Node->bIsVariable == true)
+					{
+						FBlueprintEditorUtils::RemoveMemberVariable(Blueprint, Node->GetFName());
+						Node->bIsVariable = false;
+					}
+				}
 			}
 		}
 	}
-
-	ECheckBoxState GetIsVariable() const { return ECheckBoxState::Checked; }
-	void HandleIsVariableChanged(ECheckBoxState CheckState) {}
 };
 
 struct FDesignerDetailsSummoner_Template : public FWorkflowTabFactory
@@ -178,7 +257,10 @@ FDesignerDetailsSummoner_Template::FDesignerDetailsSummoner_Template(class FDesi
 
 TSharedRef<SWidget> FDesignerDetailsSummoner_Template::CreateTabBody(const FWorkflowTabSpawnInfo& Info) const
 {
-	return SAssignNew(DesignerApplicationMode->DesignerDetails, SDetails_TemplateView);
+	TSharedRef<SDetails_TemplateView> DesignerDetails = SNew(SDetails_TemplateView);
+	DesignerApplicationMode->DesignerDetails = DesignerDetails;
+	DesignerDetails->Editor = InDesignGraphEditor;
+	return DesignerDetails;
 }
 
 struct FDesignerGraphSummoner_Template : public FWorkflowTabFactory
@@ -240,15 +322,15 @@ FDesignerApplicationMode_Template::FDesignerApplicationMode_Template(TSharedPtr<
 				(
 					FTabManager::NewStack()
 					->SetHideTabWell(true)
-					->SetSizeCoefficient(0.15f)
-					->AddTab(DetailsTabId, ETabState::OpenedTab)
+					->SetSizeCoefficient(0.8f)
+					->AddTab(GraphTabId, ETabState::OpenedTab)
 				)
 				->Split
 				(
 					FTabManager::NewStack()
 					->SetHideTabWell(true)
-					->SetSizeCoefficient(0.85f)
-					->AddTab(GraphTabId, ETabState::OpenedTab)
+					->SetSizeCoefficient(0.2f)
+					->AddTab(DetailsTabId, ETabState::OpenedTab)
 				)
 			)
 		);
@@ -256,8 +338,12 @@ FDesignerApplicationMode_Template::FDesignerApplicationMode_Template(TSharedPtr<
  	TabFactories.RegisterFactory(MakeShareable(new FDesignerDetailsSummoner_Template(this, GraphEditorToolkit)));
  	TabFactories.RegisterFactory(MakeShareable(new FDesignerGraphSummoner_Template(this, GraphEditorToolkit)));
 
-	BindDesignerToolkitCommands();
+	ToolbarExtender = MakeShareable(new FExtender);
+	GraphEditorToolkit->GetToolbarBuilder()->AddCompileToolbar(ToolbarExtender);
+	GraphEditorToolkit->GetToolbarBuilder()->AddDebuggingToolbar(ToolbarExtender);
+	AddModeSwitchToolBarExtension();
 
+	BindDesignerToolkitCommands();
 	DesignerGraphEvents.OnSelectionChanged = SGraphEditor::FOnSelectionChanged::CreateRaw(this, &FDesignerApplicationMode_Template::HandleSelectionChanged);
 }
 

@@ -6,7 +6,7 @@
 
 UBP_GraphNode_Template::UBP_GraphNode_Template()
 {
-	DefaultNodeTitle = LOCTEXT("Node Title", "Node");
+	
 }
 
 UBP_GraphNode_Template * UBP_GraphNode_Template::GetNodePointer_Implementation()
@@ -26,7 +26,11 @@ UBP_Graph_Template * UBP_GraphNode_Template::GetGraph()
 
 FText UBP_GraphNode_Template::GetNodeTitle_Implementation()
 {
-	return DefaultNodeTitle.IsEmpty() ? LOCTEXT("Node Title", "Node") : DefaultNodeTitle;
+#if WITH_EDITOR
+	return GetClass()->GetDisplayNameText();
+#else
+	return FText::GetEmpty();
+#endif
 }
 
 TArray<UBP_GraphNode_Template*> UBP_GraphNode_Template::GetChildren()

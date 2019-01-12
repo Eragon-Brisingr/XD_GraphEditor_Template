@@ -5,6 +5,11 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
+class FKismetCompilerContext;
+class FCompilerResultsLog;
+class UBlueprint;
+struct FKismetCompilerOptions;
+
 class FXD_GraphEditor_Template_EditorModule : public IModuleInterface
 {
 public:
@@ -18,4 +23,6 @@ public:
 
 private:
 	TSharedPtr<struct FGraphEditor_ClassHelper_Template> NodeHelper;
+
+	static TSharedPtr<FKismetCompilerContext> GetCompilerForBP(UBlueprint* BP, FCompilerResultsLog& InMessageLog, const FKismetCompilerOptions& InCompileOptions);
 };

@@ -8,6 +8,10 @@
 #include "GraphEditor_Template_Log.h"
 #include "GraphEditor_ClassHelper_Template.h"
 #include "BP_GraphNode_Template.h"
+#include "KismetCompiler.h"
+#include "BlueprintGeneratedClass_Template.h"
+#include "EditorGraph_Blueprint_Template.h"
+#include "BP_Compiler_Template.h"
 
 #define LOCTEXT_NAMESPACE "FXD_GraphEditor_Template_EditorModule"
 
@@ -17,6 +21,8 @@ void FXD_GraphEditor_Template_EditorModule::StartupModule()
 	IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
 	TSharedRef<IAssetTypeActions> Actions = MakeShareable(new FGraphEditor_Template_AssetTypeActions());
 	AssetTools.RegisterAssetTypeActions(Actions);
+
+	FKismetCompilerContext::RegisterCompilerForBP(UEditorGraph_Blueprint_Template::StaticClass(), &FXD_GraphEditor_Template_EditorModule::GetCompilerForBP);
 }
 
 void FXD_GraphEditor_Template_EditorModule::ShutdownModule()
@@ -33,6 +39,11 @@ void FXD_GraphEditor_Template_EditorModule::StartNodeHelper()
 		NodeHelper = MakeShareable(new FGraphEditor_ClassHelper_Template(UBP_GraphNode_Template::StaticClass()));
 		FGraphEditor_ClassHelper_Template::AddObservedBlueprintClasses(UBP_GraphNode_Template::StaticClass());
 	}
+}
+
+TSharedPtr<FKismetCompilerContext> FXD_GraphEditor_Template_EditorModule::GetCompilerForBP(UBlueprint* BP, FCompilerResultsLog& InMessageLog, const FKismetCompilerOptions& InCompileOptions)
+{
+	return TSharedPtr<FKismetCompilerContext>(new FBP_Compiler_Template(CastChecked<UEditorGraph_Blueprint_Template>(BP), InMessageLog, InCompileOptions, nullptr));
 }
 
 #undef LOCTEXT_NAMESPACE

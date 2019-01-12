@@ -43,6 +43,7 @@ public class XD_GraphEditor_Template_Editor : ModuleRules
                 "AssetTools",
                 "GraphEditor",
                 "ApplicationCore",
+                "KismetCompiler",
 
                 "Kismet",
                 "BlueprintGraph",

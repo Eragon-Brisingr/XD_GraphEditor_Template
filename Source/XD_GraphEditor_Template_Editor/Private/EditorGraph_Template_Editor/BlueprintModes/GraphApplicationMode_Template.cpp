@@ -65,6 +65,8 @@ FGraphApplicationMode_Template::FGraphApplicationMode_Template(TSharedPtr<class 
 				)
 			)
 		);
+
+	AddModeSwitchToolBarExtension();
 }
 
 void FGraphApplicationMode_Template::RegisterTabFactories(TSharedPtr<FTabManager> InTabManager)

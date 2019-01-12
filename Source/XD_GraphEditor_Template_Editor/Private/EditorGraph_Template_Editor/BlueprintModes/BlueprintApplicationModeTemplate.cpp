@@ -30,81 +30,85 @@ FBlueprintApplicationModeTemplate::FBlueprintApplicationModeTemplate(TSharedPtr<
 	: FBlueprintEditorApplicationMode(GraphEditorToolkit, InModeName, FBlueprintApplicationModesTemplate::GetLocalizedMode, false, false)
 	, MyEditor_Template(GraphEditorToolkit)
 {
-	FGraphEditorToolkit_Template* GraphEditor = GraphEditorToolkit.Get();
+}
 
- 	ToolbarExtender->AddToolBarExtension("Asset",
- 		EExtensionHook::After,
- 		GraphEditorToolkit->GetToolkitCommands(),
- 		FToolBarExtensionDelegate::CreateLambda([=](FToolBarBuilder& ToolbarBuilder)
- 	{
- 
- 		TAttribute<FName> GetActiveMode;
- 		GetActiveMode.BindRaw(GraphEditor, &FBlueprintEditor::GetCurrentMode);
- 		FOnModeChangeRequested SetActiveMode = FOnModeChangeRequested::CreateRaw(GraphEditor, &FBlueprintEditor::SetCurrentMode);
- 
- 		// Left side padding
- 		GraphEditor->AddToolbarWidget(SNew(SSpacer).Size(FVector2D(4.0f, 1.0f)));
- 
- 		GraphEditor->AddToolbarWidget(
- 			SNew(SModeWidget, FBlueprintApplicationModesTemplate::GetLocalizedMode(FBlueprintApplicationModesTemplate::DesignerMode), FBlueprintApplicationModesTemplate::DesignerMode)
- 			.OnGetActiveMode(GetActiveMode)
- 			.OnSetActiveMode(SetActiveMode)
- 			.ToolTip(IDocumentation::Get()->CreateToolTip(
- 				LOCTEXT("DesignerModeButtonTooltip", "Switch to Blueprint Designer Mode"),
- 				NULL,
- 				TEXT("Shared/Editors/BlueprintEditor"),
- 				TEXT("DesignerMode")))
- 			.IconImage(FEditorStyle::GetBrush("UMGEditor.SwitchToDesigner"))
- 			.SmallIconImage(FEditorStyle::GetBrush("UMGEditor.SwitchToDesigner.Small"))
- 			.AddMetaData<FTagMetaData>(FTagMetaData(TEXT("DesignerMode")))
- 		);
- 
- 		class SBlueprintModeSeparator : public SBorder
- 		{
- 		public:
- 			SLATE_BEGIN_ARGS(SBlueprintModeSeparator) {}
- 			SLATE_END_ARGS()
- 
- 			void Construct(const FArguments& InArg)
- 			{
- 				SBorder::Construct(
- 					SBorder::FArguments()
- 					.BorderImage(FEditorStyle::GetBrush("BlueprintEditor.PipelineSeparator"))
- 					.Padding(0.0f)
- 				);
- 			}
- 
- 			// SWidget interface
- 			virtual FVector2D ComputeDesiredSize(float) const override
- 			{
- 				const float Height = 20.0f;
- 				const float Thickness = 16.0f;
- 				return FVector2D(Thickness, Height);
- 			}
- 			// End of SWidget interface
- 		};
- 
- 		GraphEditor->AddToolbarWidget(SNew(SBlueprintModeSeparator));
- 
- 		GraphEditor->AddToolbarWidget(
- 			SNew(SModeWidget, FBlueprintApplicationModesTemplate::GetLocalizedMode(FBlueprintApplicationModesTemplate::GraphMode), FBlueprintApplicationModesTemplate::GraphMode)
- 			.OnGetActiveMode(GetActiveMode)
- 			.OnSetActiveMode(SetActiveMode)
- 			//.CanBeSelected(GraphEditor.Get(), &FBlueprintEditor::IsEditingSingleBlueprint)
- 			.ToolTip(IDocumentation::Get()->CreateToolTip(
- 				LOCTEXT("GraphModeButtonTooltip", "Switch to Graph Editing Mode"),
- 				NULL,
- 				TEXT("Shared/Editors/BlueprintEditor"),
- 				TEXT("GraphMode")))
- 			.ToolTipText(LOCTEXT("GraphModeButtonTooltip", "Switch to Graph Editing Mode"))
- 			.IconImage(FEditorStyle::GetBrush("FullBlueprintEditor.SwitchToScriptingMode"))
- 			.SmallIconImage(FEditorStyle::GetBrush("FullBlueprintEditor.SwitchToScriptingMode.Small"))
- 			.AddMetaData<FTagMetaData>(FTagMetaData(TEXT("GraphMode")))
- 		);
- 
- 		// Right side padding
- 		GraphEditor->AddToolbarWidget(SNew(SSpacer).Size(FVector2D(4.0f, 1.0f)));
- 	}));
+void FBlueprintApplicationModeTemplate::AddModeSwitchToolBarExtension()
+{
+	FGraphEditorToolkit_Template* GraphEditor = MyEditor_Template.Pin().Get();
+
+	ToolbarExtender->AddToolBarExtension("Asset",
+		EExtensionHook::After,
+		GraphEditor->GetToolkitCommands(),
+		FToolBarExtensionDelegate::CreateLambda([=](FToolBarBuilder& ToolbarBuilder)
+	{
+
+		TAttribute<FName> GetActiveMode;
+		GetActiveMode.BindRaw(GraphEditor, &FBlueprintEditor::GetCurrentMode);
+		FOnModeChangeRequested SetActiveMode = FOnModeChangeRequested::CreateRaw(GraphEditor, &FBlueprintEditor::SetCurrentMode);
+
+		// Left side padding
+		GraphEditor->AddToolbarWidget(SNew(SSpacer).Size(FVector2D(4.0f, 1.0f)));
+
+		GraphEditor->AddToolbarWidget(
+			SNew(SModeWidget, FBlueprintApplicationModesTemplate::GetLocalizedMode(FBlueprintApplicationModesTemplate::DesignerMode), FBlueprintApplicationModesTemplate::DesignerMode)
+			.OnGetActiveMode(GetActiveMode)
+			.OnSetActiveMode(SetActiveMode)
+			.ToolTip(IDocumentation::Get()->CreateToolTip(
+				LOCTEXT("DesignerModeButtonTooltip", "Switch to Blueprint Designer Mode"),
+				NULL,
+				TEXT("Shared/Editors/BlueprintEditor"),
+				TEXT("DesignerMode")))
+			.IconImage(FEditorStyle::GetBrush("UMGEditor.SwitchToDesigner"))
+			.SmallIconImage(FEditorStyle::GetBrush("UMGEditor.SwitchToDesigner.Small"))
+			.AddMetaData<FTagMetaData>(FTagMetaData(TEXT("DesignerMode")))
+		);
+
+		class SBlueprintModeSeparator : public SBorder
+		{
+		public:
+			SLATE_BEGIN_ARGS(SBlueprintModeSeparator) {}
+			SLATE_END_ARGS()
+
+				void Construct(const FArguments& InArg)
+			{
+				SBorder::Construct(
+					SBorder::FArguments()
+					.BorderImage(FEditorStyle::GetBrush("BlueprintEditor.PipelineSeparator"))
+					.Padding(0.0f)
+				);
+			}
+
+			// SWidget interface
+			virtual FVector2D ComputeDesiredSize(float) const override
+			{
+				const float Height = 20.0f;
+				const float Thickness = 16.0f;
+				return FVector2D(Thickness, Height);
+			}
+			// End of SWidget interface
+		};
+
+		GraphEditor->AddToolbarWidget(SNew(SBlueprintModeSeparator));
+
+		GraphEditor->AddToolbarWidget(
+			SNew(SModeWidget, FBlueprintApplicationModesTemplate::GetLocalizedMode(FBlueprintApplicationModesTemplate::GraphMode), FBlueprintApplicationModesTemplate::GraphMode)
+			.OnGetActiveMode(GetActiveMode)
+			.OnSetActiveMode(SetActiveMode)
+			//.CanBeSelected(GraphEditor.Get(), &FBlueprintEditor::IsEditingSingleBlueprint)
+			.ToolTip(IDocumentation::Get()->CreateToolTip(
+				LOCTEXT("GraphModeButtonTooltip", "Switch to Graph Editing Mode"),
+				NULL,
+				TEXT("Shared/Editors/BlueprintEditor"),
+				TEXT("GraphMode")))
+			.ToolTipText(LOCTEXT("GraphModeButtonTooltip", "Switch to Graph Editing Mode"))
+			.IconImage(FEditorStyle::GetBrush("FullBlueprintEditor.SwitchToScriptingMode"))
+			.SmallIconImage(FEditorStyle::GetBrush("FullBlueprintEditor.SwitchToScriptingMode.Small"))
+			.AddMetaData<FTagMetaData>(FTagMetaData(TEXT("GraphMode")))
+		);
+
+		// Right side padding
+		GraphEditor->AddToolbarWidget(SNew(SSpacer).Size(FVector2D(4.0f, 1.0f)));
+	}));
 }
 
 UEditorGraph_Blueprint_Template* FBlueprintApplicationModeTemplate::GetBlueprint() const

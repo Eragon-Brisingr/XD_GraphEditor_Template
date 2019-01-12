@@ -9,6 +9,7 @@
 #include "BP_Graph_Template.h"
 
 class UEditorGraph_Blueprint_Template;
+class UEditorGraph_Template;
 
 /**
  * 
@@ -20,26 +21,29 @@ public:
 	~FGraphEditorToolkit_Template();
 
 	// Inherited via FAssetEditorToolkit
-	virtual FLinearColor GetWorldCentricTabColorScale() const override;
-	virtual FName GetToolkitFName() const override;
-	virtual FText GetBaseToolkitName() const override;
-	virtual FString GetWorldCentricTabPrefix() const override;
-	virtual void RegisterTabSpawners(const TSharedRef<FTabManager>& TabManager) override;
-	virtual void UnregisterTabSpawners(const TSharedRef<FTabManager>& TabManager) override;
-	virtual void SaveAsset_Execute() override;
-
-	virtual void InitGarph_TemplateEditor(const EToolkitMode::Type InMode, const TSharedPtr<class IToolkitHost>& InToolkitHost, UEditorGraph_Blueprint_Template* InBP);
-	virtual void BlueprintCompiled(class UBlueprint* Blueprint);
+	FLinearColor GetWorldCentricTabColorScale() const override;
+	FName GetToolkitFName() const override;
+	FText GetBaseToolkitName() const override;
+	FString GetWorldCentricTabPrefix() const override;
+	void RegisterTabSpawners(const TSharedRef<FTabManager>& TabManager) override;
+	void UnregisterTabSpawners(const TSharedRef<FTabManager>& TabManager) override;
+	void SaveAsset_Execute() override;
 
 	// Begin FBlueprintEditor
 	void InitalizeExtenders() override;
-	virtual void RegisterApplicationModes(const TArray<UBlueprint*>& InBlueprints, bool bShouldOpenInDefaultsMode, bool bNewlyCreated = false) override;
-	virtual FGraphAppearanceInfo GetGraphAppearance(class UEdGraph* InGraph) const override;
-	virtual void AppendExtraCompilerResults(TSharedPtr<class IMessageLogListing> ResultsListing) override;
-	virtual TSubclassOf<UEdGraphSchema> GetDefaultSchemaClass() const override;
+	void RegisterApplicationModes(const TArray<UBlueprint*>& InBlueprints, bool bShouldOpenInDefaultsMode, bool bNewlyCreated = false) override;
+	FGraphAppearanceInfo GetGraphAppearance(class UEdGraph* InGraph) const override;
+	void AppendExtraCompilerResults(TSharedPtr<class IMessageLogListing> ResultsListing) override;
+	TSubclassOf<UEdGraphSchema> GetDefaultSchemaClass() const override;
 	// End FBlueprintEditor
+
+public:
+	void InitGarph_TemplateEditor(const EToolkitMode::Type InMode, const TSharedPtr<class IToolkitHost>& InToolkitHost, UEditorGraph_Blueprint_Template* InBP);
+	void BlueprintCompiled(class UBlueprint* Blueprint);
 
 	class UEditorGraph_Blueprint_Template* GetTemplateBlueprintObj() const;
 
 	UBP_Graph_Template* DesignerGraph_Template;
+
+	UEditorGraph_Template* GetEditorGraph() const;
 };

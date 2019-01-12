@@ -6,26 +6,7 @@
 #include "EdGraph/EdGraphPin.h"
 #include "BP_Graph_Template.h"
 
-bool UEditorGraph_Template::IsNameUnique(const FText & InName)
-{
-	bool bUnique = true;
-	for (UEdGraphNode* Node : Nodes)
-	{
-		UEditor_GraphNode_Template* PNode = Cast<UEditor_GraphNode_Template>(Node);
-		FText NodeName = PNode->GetEdNodeName();
-		if (bUnique==true && !NodeName.IsEmpty())
-		{
-			if (NodeName.EqualToCaseIgnored(InName))
-			{
-				GraphEditor_Template_Warning_Log("I found another node with the same name: %s.", *NodeName.ToString());
-				bUnique = false;
-			}
-		}
-	}
-	return bUnique;
-}
-
-void UEditorGraph_Template::SaveGraph()
+void UEditorGraph_Template::BuildGraph()
 {
 	LinkAssetNodes();
 	MapNamedNodes();
@@ -93,7 +74,9 @@ void UEditorGraph_Template::RefreshNodes()
 	for (UEdGraphNode* Node : Nodes)
 	{
 		if (UEditor_GraphNode_Template* BP_GraphNode_Template = Cast<UEditor_GraphNode_Template>(Node))
+		{
 			BP_GraphNode_Template->UpdateVisualNode();
+		}
 	}
 }
 
@@ -107,12 +90,12 @@ void UEditorGraph_Template::MapNamedNodes()
 	{
 		if (UEditor_GraphNode_Template* BP_GraphNode_Template = Cast<UEditor_GraphNode_Template>(Node))
 		{
-			FText Name = BP_GraphNode_Template->GetEdNodeName();
-            if (!Name.IsEmpty())
-            {
-                Graph->NamedNodes.Add(Name.ToString(), BP_GraphNode_Template->BP_Node_Template);
-                Graph->NodesNames.Add(BP_GraphNode_Template->BP_Node_Template, Name.ToString());
-            }
+			if (BP_GraphNode_Template->BP_Node_Template)
+			{
+				FName Name = BP_GraphNode_Template->BP_Node_Template->GetFName();
+				Graph->NamedNodes.Add(Name.ToString(), BP_GraphNode_Template->BP_Node_Template);
+				Graph->NodesNames.Add(BP_GraphNode_Template->BP_Node_Template, Name.ToString());
+			}
 		}
 	}
 }

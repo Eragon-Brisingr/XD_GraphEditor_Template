@@ -80,10 +80,24 @@ Pin的显示定义（蓝图中就是参数之类可以连线的地方）
 
 重写UEdGraphSchema中的GetContextMenuActions给全局的Node或者Pin添加行为
 
-## 错误报告
+## 节点错误报告
 UEdGraphNode中设置ErrorMsg、bHasCompilerMessage、ErrorType（EMessageSeverity::Type）
 
 SGraphNode在节点需要更新错误信息的地方调用UpdateErrorInfo
+
+## 添加编辑器面板
+
+### FWorkflowAllowedTabSet
+
+1. 面板的集合
+2. 调用FWorkflowAllowedTabSet::RegisterFactory注册每个面板实例化的定义
+3. 调用FWorkflowCentricApplication::PushTabFactories（FBlueprintEditor的一个基类）注册FWorkflowAllowedTabSet
+
+### FWorkflowTabFactory
+
+1. 面板实例化定义的基类
+2. 继承并重写FWorkflowTabFactory::CreateTabBody实现特定面板的实例化
+3. 向FWorkflowAllowedTabSet的实例中注册该面板实例化定义（FWorkflowAllowedTabSet::RegisterFactory）
 
 ## 其它工具类
 
@@ -114,21 +128,14 @@ GatherClasses 搜集UClass信息
 
 1. 定义了App的模式
 2. 定义了初始的界面布局
-3. FBlueprintEditor::RegisterApplicationModes中重写以映射操作
+3. **FBlueprintEditor::RegisterApplicationModes**中重写以映射操作
 4. 调用FWorkflowCentricApplication::PushTabFactories（FBlueprintEditor的一个基类）设置FWorkflowAllowedTabSet（所有面板的定义）
-5. 调用ToolbarExtender->AddToolBarExtension中注册Extension，
+5. FApplicationMode::ToolbarExtender为当前的工具栏，通过FBlueprintEditor::GetToolbarBuilder()->AddCompileToolbar(ToolbarExtender)向工具栏中添加功能，也可调用FExtender::AddToolBarExtension添加自定义的功能
 
-### FWorkflowAllowedTabSet
+### FKismetCompilerContext
 
-1. 面板的集合
-
-2. 调用FWorkflowAllowedTabSet::RegisterFactory注册每个面板实例化的定义
-
-### FWorkflowTabFactory
-
-1. 面板实例化定义的基类
-2. 继承并重写FWorkflowTabFactory::CreateTabBody实现特定面板的实例化
-3. 向FWorkflowAllowedTabSet的实例中注册该面板实例化定义（FWorkflowAllowedTabSet::RegisterFactory）
+1. 蓝图编译的过程定义
+2. 在模块初始化时注册该编译器，FKismetCompilerContext::RegisterCompilerForBP
 
 ## S类型
 

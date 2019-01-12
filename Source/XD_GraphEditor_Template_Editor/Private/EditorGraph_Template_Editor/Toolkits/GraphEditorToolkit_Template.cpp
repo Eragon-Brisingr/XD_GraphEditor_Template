@@ -83,9 +83,10 @@ void FGraphEditorToolkit_Template::BlueprintCompiled(class UBlueprint* Blueprint
 {
 	if (DesignerGraph_Template)
 	{
-		if (UEditorGraph_Template* MyGraph = Cast<UEditorGraph_Template>(DesignerGraph_Template->EdGraph))
+		if (UEditorGraph_Template* EdGraph = Cast<UEditorGraph_Template>(DesignerGraph_Template->EdGraph))
 		{
-			MyGraph->RefreshNodes();
+			EdGraph->BuildGraph();
+			EdGraph->RefreshNodes();
 		}
 	}
 }
@@ -133,12 +134,19 @@ class UEditorGraph_Blueprint_Template* FGraphEditorToolkit_Template::GetTemplate
 	return Cast<UEditorGraph_Blueprint_Template>(GetBlueprintObj());
 }
 
+UEditorGraph_Template* FGraphEditorToolkit_Template::GetEditorGraph() const
+{
+	return Cast<UEditorGraph_Template>(DesignerGraph_Template->EdGraph);
+}
+
 void FGraphEditorToolkit_Template::SaveAsset_Execute()
 {
-	if (DesignerGraph_Template && DesignerGraph_Template->EdGraph)
+	if (DesignerGraph_Template)
 	{
-		UEditorGraph_Template* EdGraph = Cast<UEditorGraph_Template>(DesignerGraph_Template->EdGraph);
-		EdGraph->SaveGraph();
+		if (UEditorGraph_Template* EdGraph = Cast<UEditorGraph_Template>(DesignerGraph_Template->EdGraph))
+		{
+			EdGraph->BuildGraph();
+		}
 	}
 	FBlueprintEditor::SaveAsset_Execute();
 }

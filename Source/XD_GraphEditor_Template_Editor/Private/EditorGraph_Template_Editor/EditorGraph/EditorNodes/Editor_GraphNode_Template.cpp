@@ -80,16 +80,9 @@ FText UEditor_GraphNode_Template::GetNodeTitle(ENodeTitleType::Type TitleType) c
 {
 	if (BP_Node_Template)
 	{
-		switch (TitleType)
-		{
-		case ENodeTitleType::Type::MenuTitle:
-			return BP_Node_Template->GetNodeTitle();
-		default:
-			FText Title = GetEdNodeName();
-			return Title.IsEmpty() ? BP_Node_Template->GetNodeTitle() : Title;
-		}
+		return FText::FromString(BP_Node_Template->GetName());
 	}
-	return GetEdNodeName();
+	return FText::GetEmpty();
 }
 
 void UEditor_GraphNode_Template::PrepareForCopying()
@@ -168,34 +161,5 @@ void UEditor_GraphNode_Template::PostCopyNode()
 		BP_Node_Template->ClearFlags(RF_Transient);
 	}
 }
-
-bool UEditor_GraphNode_Template::RenameUniqueNode(const FText & NewName)
-{
-	bool bRenamedNode = false;
-
-	UEditorGraph_Template* EdGraph = Cast<UEditorGraph_Template>(GetGraph());
-
-	if (EdGraph->IsNameUnique(NewName))
-	{
-		Modify();
-		SetEdNodeName(NewName);
-		bRenamedNode = true;
-	}
-	return bRenamedNode;
-}
-FText UEditor_GraphNode_Template::GetEdNodeName() const
-{
-	return EdNodeName;
-}
-void UEditor_GraphNode_Template::SetEdNodeName(const FText & Name)
-{
-	EdNodeName = Name;
-}
-
-void UEditor_GraphNode_Template::SetEdNodeName(const FName & Name)
-{
-	SetEdNodeName(FText::FromName(Name));
-}
-
 
 #undef LOCTEXT_NAMESPACE

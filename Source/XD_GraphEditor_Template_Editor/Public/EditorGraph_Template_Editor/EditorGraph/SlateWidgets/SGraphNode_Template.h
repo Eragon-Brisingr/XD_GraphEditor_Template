@@ -26,8 +26,8 @@ public:
 protected:
 
 	TSharedPtr<SBox> ContentWidget;
-    TSharedPtr<STextBlock> NodeHeader;
 
 	virtual void CreateContent();
-    virtual void CreateHeader();
+
+	FText GetBP_NodeName() const;
 };

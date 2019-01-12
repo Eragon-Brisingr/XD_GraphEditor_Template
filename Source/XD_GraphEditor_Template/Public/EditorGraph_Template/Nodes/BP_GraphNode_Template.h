@@ -39,7 +39,6 @@ public:
 	UBP_GraphNode_Template* GetNodePointer();
     virtual UBP_GraphNode_Template* GetNodePointer_Implementation();
 
-
 	virtual void SetGraph(UBP_Graph_Template* InGraph);
 	virtual UBP_Graph_Template* GetGraph();
 	virtual void AddToChildren(UBP_GraphNode_Template* NewChildNode);
@@ -51,6 +50,8 @@ public:
 	virtual bool RemoveNodeFromParents(UBP_GraphNode_Template* NodeToRemove);
 	virtual bool RemoveNodeFromChilds(UBP_GraphNode_Template* NodeToRemove);
 
+	UPROPERTY()
+	uint8 bIsVariable : 1;
 protected:
 	UPROPERTY()
 	UBP_Graph_Template * Graph = nullptr;
@@ -62,10 +63,6 @@ protected:
 	bool bHasInputPins = true;
     UPROPERTY()
 	bool bHasOutputPins = true;
-    UPROPERTY()
-	FText DefaultNodeTitle = FText();
-
-
 };
 
 #undef LOCTEXT_NAMESPACE

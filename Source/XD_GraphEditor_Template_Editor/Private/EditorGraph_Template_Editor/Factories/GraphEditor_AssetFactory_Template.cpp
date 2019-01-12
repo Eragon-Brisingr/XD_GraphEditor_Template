@@ -3,6 +3,7 @@
 #include "EditorGraph_Blueprint_Template.h"
 #include "BlueprintGeneratedClass_Template.h"
 #include "KismetEditorUtilities.h"
+#include "ObjectBase_Template.h"
 
 UGraphEditor_AssetFactory_Template::UGraphEditor_AssetFactory_Template()
 {
@@ -13,7 +14,7 @@ UGraphEditor_AssetFactory_Template::UGraphEditor_AssetFactory_Template()
 
 UObject* UGraphEditor_AssetFactory_Template::FactoryCreateNew(UClass* Class, UObject* InParent, FName Name, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn, FName CallingContext)
 {
-	UEditorGraph_Blueprint_Template* NewBP = CastChecked<UEditorGraph_Blueprint_Template>(FKismetEditorUtilities::CreateBlueprint(UObject::StaticClass(), InParent, Name, EBlueprintType::BPTYPE_Normal, UEditorGraph_Blueprint_Template::StaticClass(), UBlueprintGeneratedClass_Template::StaticClass(), CallingContext));
+	UEditorGraph_Blueprint_Template* NewBP = CastChecked<UEditorGraph_Blueprint_Template>(FKismetEditorUtilities::CreateBlueprint(UObjectBase_Template::StaticClass(), InParent, Name, EBlueprintType::BPTYPE_Normal, UEditorGraph_Blueprint_Template::StaticClass(), UBlueprintGeneratedClass_Template::StaticClass(), CallingContext));
 	return NewBP;
 }
 

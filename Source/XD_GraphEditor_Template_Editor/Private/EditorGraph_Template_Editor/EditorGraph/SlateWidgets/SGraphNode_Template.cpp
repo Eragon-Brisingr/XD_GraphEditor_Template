@@ -58,7 +58,8 @@ void SGraphNode_Template::UpdateGraphNode()
 						.HAlign(HAlign_Center)
 						.AutoHeight()
 						[
-							SAssignNew(NodeHeader, STextBlock)
+							SNew(STextBlock)
+							.Text(this, &SGraphNode_Template::GetBP_NodeName)
 						]
 						+ SVerticalBox::Slot()
 						.HAlign(HAlign_Center)
@@ -129,7 +130,6 @@ void SGraphNode_Template::UpdateGraphNode()
 
 	CreatePinWidgets();
 	CreateContent();
-    CreateHeader();
 }
 
 void SGraphNode_Template::CreatePinWidgets()
@@ -177,20 +177,12 @@ void SGraphNode_Template::AddPin(const TSharedRef<SGraphPin>& PinToAdd)
 
 bool SGraphNode_Template::IsNameReadOnly() const
 {
-	return false;
+	return true;
 }
 
 void SGraphNode_Template::OnNameTextCommited(const FText & InText, ETextCommit::Type CommitInfo)
 {
 	UEditor_GraphNode_Template* UEdNode = CastChecked<UEditor_GraphNode_Template>(GraphNode);
-
-	if (UEdNode)
-		if (UEdNode->RenameUniqueNode(InText))
-		{
-			UpdateGraphNode();
-            NodeHeader.Get()->SetVisibility(EVisibility::Visible);
-			SGraphNode::OnNameTextCommited(InText, CommitInfo);
-		}
 
 }
 
@@ -202,16 +194,14 @@ void SGraphNode_Template::CreateContent()
 	ContentWidget->SetMinDesiredWidth(200.f);
 }
 
-void SGraphNode_Template::CreateHeader()
+FText SGraphNode_Template::GetBP_NodeName() const
 {
-    NodeHeader.Get()->SetText(GraphNode->GetNodeTitle(ENodeTitleType::MenuTitle));
-
-    UEditor_GraphNode_Template* UEdNode = CastChecked<UEditor_GraphNode_Template>(GraphNode);
-
-    if (UEdNode)
-        NodeHeader.Get()->SetVisibility((UEdNode->GetEdNodeName().IsEmpty()) ? EVisibility::Collapsed : EVisibility::Visible);
-    else
-        GraphEditor_Template_Error_Log("An error occurred when creating the slate node headers");
+	UEditor_GraphNode_Template* Node = Cast<UEditor_GraphNode_Template>(GraphNode);
+	if (Node->BP_Node_Template)
+	{
+		return Node->BP_Node_Template->GetNodeTitle();
+	}
+	return FText::GetEmpty();
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
