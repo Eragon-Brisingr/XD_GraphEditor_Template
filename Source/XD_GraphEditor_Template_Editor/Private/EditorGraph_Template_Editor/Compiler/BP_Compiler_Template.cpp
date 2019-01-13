@@ -1,9 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "BP_Compiler_Template.h"
 #include "EditorGraph_Blueprint_Template.h"
 #include "BlueprintGeneratedClass_Template.h"
 #include "KismetReinstanceUtilities.h"
+#include "BP_Graph_Template.h"
 
 FBP_Compiler_Template::FBP_Compiler_Template(UEditorGraph_Blueprint_Template* SourceSketch, FCompilerResultsLog& InMessageLog, const FKismetCompilerOptions& InCompilerOptions, TArray<UObject*>* InObjLoaded)
 	: FKismetCompilerContext(SourceSketch, InMessageLog, InCompilerOptions, InObjLoaded)
@@ -37,6 +38,6 @@ void FBP_Compiler_Template::FinishCompilingClass(UClass* Class)
 	UBlueprintGeneratedClass_Template* BlueprintGeneratedClass = CastChecked<UBlueprintGeneratedClass_Template>(Class);
 
 	UEditorGraph_Blueprint_Template* Blueprint_Template = CastChecked<UEditorGraph_Blueprint_Template>(Class->ClassGeneratedBy);
-
-	BlueprintGeneratedClass->DesignerGraph_Template = Blueprint_Template->DesignerGraph_Template;
+	
+	BlueprintGeneratedClass->DesignerGraph_Template = (UBP_Graph_Template*)StaticDuplicateObject(Blueprint_Template->DesignerGraph_Template, BlueprintGeneratedClass);
 }
