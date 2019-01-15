@@ -92,8 +92,8 @@ public:
 
 			void CreateMulticastEventCustomization(IDetailLayoutBuilder& DetailLayout, FName ThisComponentName, UClass* PropertyClass, UMulticastDelegateProperty* DelegateProperty)
 			{
-				const FString AddString = FString(TEXT("Add "));
-				const FString ViewString = FString(TEXT("View "));
+				const FString AddString = FString(TEXT("添加 "));
+				const FString ViewString = FString(TEXT("查看 "));
 
 				const UEdGraphSchema_K2* K2Schema = GetDefault<UEdGraphSchema_K2>();
 
@@ -119,7 +119,7 @@ public:
 				FName EventName = DelegateProperty->GetFName();
 				FText EventText = DelegateProperty->GetDisplayNameText();
 
-				IDetailCategoryBuilder& EventCategory = DetailLayout.EditCategory(TEXT("Events"), LOCTEXT("Events", "Events"), ECategoryPriority::Uncommon);
+				IDetailCategoryBuilder& EventCategory = DetailLayout.EditCategory(TEXT("事件"), LOCTEXT("事件", "事件"), ECategoryPriority::Uncommon);
 
 				EventCategory.AddCustomRow(EventText)
 					.NameContent()
