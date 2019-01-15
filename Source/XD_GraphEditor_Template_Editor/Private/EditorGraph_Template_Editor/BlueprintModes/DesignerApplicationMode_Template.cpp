@@ -13,6 +13,17 @@
 #include "BlueprintEditorUtils.h"
 #include "Editor_GraphNode_Template.h"
 #include "EditorGraph_Template.h"
+#include "PropertyEditorDelegates.h"
+#include "SKismetInspector.h"
+#include "IDetailCustomization.h"
+#include "DetailCategoryBuilder.h"
+#include "DetailLayoutBuilder.h"
+#include "SComboButton.h"
+#include "DetailWidgetRow.h"
+#include "ObjectEditorUtils.h"
+#include "KismetEditorUtilities.h"
+#include "SWidgetSwitcher.h"
+#include "K2Node_ComponentBoundEvent.h"
 
 #define LOCTEXT_NAMESPACE "GraphEditor_Template"
 
@@ -30,8 +41,10 @@ public:
 
 	TWeakPtr<FGraphEditorToolkit_Template> Editor;
 
-	void Construct(const FArguments& InArgs)
+	void Construct(const FArguments& InArgs, TWeakPtr<FGraphEditorToolkit_Template> InEditor)
 	{
+		Editor = InEditor;
+
 		FPropertyEditorModule& EditModule = FModuleManager::Get().GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
 		FNotifyHook* NotifyHook = this;
 
@@ -47,6 +60,161 @@ public:
 		DetailsViewArgs.DefaultsOnlyVisibility = EEditDefaultsOnlyNodeVisibility::Automatic;
 
 		PropertyView = EditModule.CreateDetailView(DetailsViewArgs);
+
+		class FDesignerDelegate_Template : public IDetailCustomization
+		{
+			FDesignerDelegate_Template(UEditorGraph_Blueprint_Template* Blueprint)
+				:Blueprint(Blueprint)
+			{}
+
+			UEditorGraph_Blueprint_Template* Blueprint;
+
+			void CustomizeDetails(IDetailLayoutBuilder& DetailLayout) override
+			{
+				TArray< TWeakObjectPtr<UObject> > OutObjects;
+				DetailLayout.GetObjectsBeingCustomized(OutObjects);
+
+				if (OutObjects.Num() == 1)
+				{
+					UClass* PropertyClass = OutObjects[0].Get()->GetClass();
+
+					for (TFieldIterator<UProperty> PropertyIt(PropertyClass, EFieldIteratorFlags::IncludeSuper); PropertyIt; ++PropertyIt)
+					{
+						UProperty* Property = *PropertyIt;
+
+						if (UMulticastDelegateProperty* MulticastDelegateProperty = Cast<UMulticastDelegateProperty>(Property))
+						{
+							CreateMulticastEventCustomization(DetailLayout, OutObjects[0].Get()->GetFName(), PropertyClass, MulticastDelegateProperty);
+						}
+					}
+				}
+			}
+
+			void CreateMulticastEventCustomization(IDetailLayoutBuilder& DetailLayout, FName ThisComponentName, UClass* PropertyClass, UMulticastDelegateProperty* DelegateProperty)
+			{
+				const FString AddString = FString(TEXT("Add "));
+				const FString ViewString = FString(TEXT("View "));
+
+				const UEdGraphSchema_K2* K2Schema = GetDefault<UEdGraphSchema_K2>();
+
+				if ( !K2Schema->CanUserKismetAccessVariable(DelegateProperty, PropertyClass, UEdGraphSchema_K2::MustBeDelegate) )
+				{
+					return;
+				}
+
+				FText PropertyTooltip = DelegateProperty->GetToolTipText();
+				if ( PropertyTooltip.IsEmpty() )
+				{
+					PropertyTooltip = FText::FromString(DelegateProperty->GetName());
+				}
+
+				UObjectProperty* ComponentProperty = FindField<UObjectProperty>(Blueprint->SkeletonGeneratedClass, ThisComponentName);
+
+				if (!ComponentProperty)
+				{
+					return;
+				}
+
+				FName PropertyName = ComponentProperty->GetFName();
+				FName EventName = DelegateProperty->GetFName();
+				FText EventText = DelegateProperty->GetDisplayNameText();
+
+				IDetailCategoryBuilder& EventCategory = DetailLayout.EditCategory(TEXT("Events"), LOCTEXT("Events", "Events"), ECategoryPriority::Uncommon);
+
+				EventCategory.AddCustomRow(EventText)
+					.NameContent()
+					[
+						SNew(SHorizontalBox)
+						.ToolTipText(DelegateProperty->GetToolTipText())
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.VAlign(VAlign_Center)
+						.Padding(0, 0, 5, 0)
+						[
+							SNew(SImage)
+							.Image(FEditorStyle::GetBrush("GraphEditor.Event_16x"))
+						]
+
+						+ SHorizontalBox::Slot()
+						.VAlign(VAlign_Center)
+						[
+							SNew(STextBlock)
+							.Font(IDetailLayoutBuilder::GetDetailFont())
+							.Text(EventText)
+						]
+					]
+					.ValueContent()
+					.MinDesiredWidth(150)
+					.MaxDesiredWidth(200)
+					[
+						SNew(SButton)
+						.ButtonStyle(FEditorStyle::Get(), "FlatButton.Success")
+						.HAlign(HAlign_Center)
+						.OnClicked(this, &FDesignerDelegate_Template::HandleAddOrViewEventForVariable, EventName, PropertyName, MakeWeakObjectPtr(PropertyClass))
+						.ForegroundColor(FSlateColor::UseForeground())
+						[
+							SNew(SWidgetSwitcher)
+							.WidgetIndex(this, &FDesignerDelegate_Template::HandleAddOrViewIndexForButton, EventName, PropertyName)
+							+ SWidgetSwitcher::Slot()
+							[
+								SNew(STextBlock)
+								.Font(FEditorStyle::GetFontStyle(TEXT("BoldFont")))
+								.Text(LOCTEXT("ViewEvent", "View"))
+							]
+							+ SWidgetSwitcher::Slot()
+							[
+								SNew(SImage)
+								.Image(FEditorStyle::GetBrush("Plus"))
+							]
+						]
+					];
+			}
+
+			FReply HandleAddOrViewEventForVariable(const FName EventName, FName PropertyName, TWeakObjectPtr<UClass> PropertyClass)
+			{
+				UBlueprint* BlueprintObj = Blueprint;
+
+				// Find the corresponding variable property in the Blueprint
+				UObjectProperty* VariableProperty = FindField<UObjectProperty>(BlueprintObj->SkeletonGeneratedClass, PropertyName);
+
+				if (VariableProperty)
+				{
+					if (!FKismetEditorUtilities::FindBoundEventForComponent(BlueprintObj, EventName, VariableProperty->GetFName()))
+					{
+						FKismetEditorUtilities::CreateNewBoundEventForClass(PropertyClass.Get(), EventName, BlueprintObj, VariableProperty);
+					}
+					else
+					{
+						const UK2Node_ComponentBoundEvent* ExistingNode = FKismetEditorUtilities::FindBoundEventForComponent(BlueprintObj, EventName, VariableProperty->GetFName());
+						if (ExistingNode)
+						{
+							FKismetEditorUtilities::BringKismetToFocusAttentionOnObject(ExistingNode);
+						}
+					}
+				}
+
+				return FReply::Handled();
+			}
+
+			int32 HandleAddOrViewIndexForButton(const FName EventName, FName PropertyName) const
+			{
+				UBlueprint* BlueprintObj = Blueprint;
+
+				if (FKismetEditorUtilities::FindBoundEventForComponent(BlueprintObj, EventName, PropertyName))
+				{
+					return 0; // View
+				}
+
+				return 1; // Add
+			}
+		public:
+			static TSharedRef<IDetailCustomization> MakeInstance(UEditorGraph_Blueprint_Template* Blueprint)
+			{
+				return MakeShareable(new FDesignerDelegate_Template(Blueprint));
+			}
+		};
+
+		PropertyView->RegisterInstancedCustomPropertyLayout(UObject::StaticClass(), FOnGetDetailCustomizationInstance::CreateStatic(&FDesignerDelegate_Template::MakeInstance, Editor.Pin()->GetTemplateBlueprintObj()));
 
 		ChildSlot
 		[
@@ -227,6 +395,8 @@ public:
 				}
 			}
 		}
+
+		PropertyView->ForceRefresh();
 	}
 };
 
@@ -257,9 +427,8 @@ FDesignerDetailsSummoner_Template::FDesignerDetailsSummoner_Template(class FDesi
 
 TSharedRef<SWidget> FDesignerDetailsSummoner_Template::CreateTabBody(const FWorkflowTabSpawnInfo& Info) const
 {
-	TSharedRef<SDetails_TemplateView> DesignerDetails = SNew(SDetails_TemplateView);
+	TSharedRef<SDetails_TemplateView> DesignerDetails = SNew(SDetails_TemplateView, InDesignGraphEditor);
 	DesignerApplicationMode->DesignerDetails = DesignerDetails;
-	DesignerDetails->Editor = InDesignGraphEditor;
 	return DesignerDetails;
 }
 
