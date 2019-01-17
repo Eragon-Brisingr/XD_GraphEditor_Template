@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018 Jhonny Hueller
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 #pragma once
 
 #include "CoreMinimal.h"
@@ -63,6 +63,14 @@ protected:
 	bool bHasInputPins = true;
     UPROPERTY()
 	bool bHasOutputPins = true;
+
+public:
+	UPROPERTY(EditAnywhere, Category = "Example")
+	uint8 bExampleVar : 1;
+
+	DECLARE_DYNAMIC_DELEGATE_RetVal(bool, FExampleBindDelegate);
+	UPROPERTY()
+	FExampleBindDelegate bExampleVarDelegate;
 };
 
 #undef LOCTEXT_NAMESPACE

@@ -22,4 +22,7 @@ public:
 	void SpawnNewClass(const FString& NewClassName) override;
 	void FinishCompilingClass(UClass* Class) override;
 	// End FKismetCompilerContext
+
+	static bool IsBindingValid(const FDelegateEditorBinding_Template& Binding, UClass* Class, class UEditorGraph_Blueprint_Template* Blueprint, FCompilerResultsLog& MessageLog);
+
 };

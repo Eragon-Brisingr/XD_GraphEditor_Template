@@ -9,6 +9,21 @@
 /**
  * 
  */
+USTRUCT()
+struct XD_GRAPHEDITOR_TEMPLATE_API FDelegateRuntimeBinding_Template
+{
+	GENERATED_BODY()
+public:
+	/** The widget that will be bound to the live data. */
+	UPROPERTY()
+	FString ObjectName;
+
+	/** The function or property we're binding to on the source object. */
+	UPROPERTY()
+	FName FunctionName;
+};
+
+
 UCLASS()
 class XD_GRAPHEDITOR_TEMPLATE_API UBlueprintGeneratedClass_Template : public UBlueprintGeneratedClass
 {
@@ -17,4 +32,6 @@ public:
 	UPROPERTY()
 	class UBP_Graph_Template* DesignerGraph_Template;
 
+	UPROPERTY()
+	TArray<FDelegateRuntimeBinding_Template> Bindings;
 };

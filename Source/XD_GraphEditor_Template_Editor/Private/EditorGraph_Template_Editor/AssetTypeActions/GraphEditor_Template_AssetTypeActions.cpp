@@ -1,4 +1,5 @@
-﻿// Copyright (c) 2018 Jhonny Hueller
+﻿// Fill out your copyright notice in the Description page of Project Settings.
+
 #include "GraphEditor_Template_AssetTypeActions.h"
 #include "XD_GraphEditor_Template_Editor.h"
 #include "GraphEditorToolkit_Template.h"
