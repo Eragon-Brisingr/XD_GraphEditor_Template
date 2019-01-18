@@ -2,7 +2,7 @@
 
 #include "DesignerApplicationMode_Template.h"
 #include "WorkflowTabFactory.h"
-#include "GraphEditorToolkit_Template.h"
+#include "GraphEditor_Template.h"
 #include "BlueprintEditor.h"
 #include "PropertyEditorModule.h"
 #include "GraphEditor.h"
@@ -58,9 +58,9 @@ public:
 	TSharedPtr<SEditableTextBox> NameTextBox;
 	TSharedPtr<class IDetailsView> PropertyView;
 
-	TWeakPtr<FGraphEditorToolkit_Template> Editor;
+	TWeakPtr<FGraphEditor_Template> Editor;
 
-	void Construct(const FArguments& InArgs, TWeakPtr<FGraphEditorToolkit_Template> InEditor)
+	void Construct(const FArguments& InArgs, TWeakPtr<FGraphEditor_Template> InEditor)
 	{
 		Editor = InEditor;
 
@@ -89,7 +89,7 @@ public:
 			SLATE_END_ARGS()
 
 		public:
-			void Construct(const FArguments& InArgs, FGraphEditorToolkit_Template* InEditor, UDelegateProperty* DelegateProperty, TSharedRef<IPropertyHandle> Property)
+			void Construct(const FArguments& InArgs, FGraphEditor_Template* InEditor, UDelegateProperty* DelegateProperty, TSharedRef<IPropertyHandle> Property)
 			{
 				Editor = InEditor;
 				BindableSignature = DelegateProperty->SignatureFunction;
@@ -435,7 +435,7 @@ public:
 			}
 
 		private:
-			FGraphEditorToolkit_Template* Editor;
+			FGraphEditor_Template* Editor;
 
 			bool GeneratePureBindings = true;
 			UFunction* BindableSignature;
@@ -444,7 +444,7 @@ public:
 		class FDetail_TemplateExtensionHandler : public IDetailPropertyExtensionHandler
 		{
 		public:
-			FDetail_TemplateExtensionHandler(FGraphEditorToolkit_Template* BlueprintEditor)
+			FDetail_TemplateExtensionHandler(FGraphEditor_Template* BlueprintEditor)
 				: BlueprintEditor(BlueprintEditor)
 			{}
 
@@ -496,18 +496,18 @@ public:
 			}
 
 		private:
-			FGraphEditorToolkit_Template* BlueprintEditor;
+			FGraphEditor_Template* BlueprintEditor;
 		};
 
 		PropertyView->SetExtensionHandler(MakeShareable(new FDetail_TemplateExtensionHandler(Editor.Pin().Get())));
 
 		class FDesignerDelegate_Template : public IDetailCustomization
 		{
-			FDesignerDelegate_Template(FGraphEditorToolkit_Template* InEditor, UEditorGraph_Blueprint_Template* Blueprint)
+			FDesignerDelegate_Template(FGraphEditor_Template* InEditor, UEditorGraph_Blueprint_Template* Blueprint)
 				:Editor(InEditor), Blueprint(Blueprint)
 			{}
 
-			FGraphEditorToolkit_Template* Editor;
+			FGraphEditor_Template* Editor;
 			UEditorGraph_Blueprint_Template* Blueprint;
 
 			void CustomizeDetails(IDetailLayoutBuilder& DetailLayout) override
@@ -650,13 +650,13 @@ public:
 				return 1; // Add
 			}
 		public:
-			static TSharedRef<IDetailCustomization> MakeInstance(FGraphEditorToolkit_Template* Editor, UEditorGraph_Blueprint_Template* Blueprint)
+			static TSharedRef<IDetailCustomization> MakeInstance(FGraphEditor_Template* Editor, UEditorGraph_Blueprint_Template* Blueprint)
 			{
 				return MakeShareable(new FDesignerDelegate_Template(Editor, Blueprint));
 			}
 		};
 
-		FGraphEditorToolkit_Template* BlueprintEditor = Editor.Pin().Get();
+		FGraphEditor_Template* BlueprintEditor = Editor.Pin().Get();
 		PropertyView->RegisterInstancedCustomPropertyLayout(UObject::StaticClass(), FOnGetDetailCustomizationInstance::CreateStatic(&FDesignerDelegate_Template::MakeInstance, BlueprintEditor, BlueprintEditor->GetTemplateBlueprintObj()));
 
 		ChildSlot
@@ -818,12 +818,20 @@ public:
 		{
 			if (UBP_GraphNode_Template* Node = Cast<UBP_GraphNode_Template>(Obj.Get()))
 			{
+				FName VarName = Node->GetFName();
 				if (CheckState == ECheckBoxState::Checked)
 				{
 					if (Node->bIsVariable == false)
 					{
-						if (FBlueprintEditorUtils::AddMemberVariable(Blueprint, Node->GetFName(), FEdGraphPinType(UEdGraphSchema_K2::PC_Object, UEdGraphSchema_K2::PC_Object, Node->GetClass(), EPinContainerType::None, false, FEdGraphTerminalType())))
+						if (FBlueprintEditorUtils::AddMemberVariable(Blueprint, VarName, FEdGraphPinType(UEdGraphSchema_K2::PC_Object, NAME_None, Node->GetClass(), EPinContainerType::None, false, FEdGraphTerminalType())))
 						{
+							FBPVariableDescription* BP_Var = Blueprint->NewVariables.FindByPredicate([&](const FBPVariableDescription E) {return E.VarName == VarName; });
+
+							BP_Var->Category = LOCTEXT("设计图表引用", "设计图表引用");
+							BP_Var->PropertyFlags = CPF_BlueprintVisible | CPF_ExportObject | CPF_InstancedReference | CPF_RepSkip | CPF_PersistentInstance | CPF_HasGetValueTypeHash;
+
+							FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);
+
 							Node->bIsVariable = true;
 						}
 					}
@@ -832,7 +840,12 @@ public:
 				{
 					if (Node->bIsVariable == true)
 					{
-						FBlueprintEditorUtils::RemoveMemberVariable(Blueprint, Node->GetFName());
+						const int32 VarIndex = FBlueprintEditorUtils::FindNewVariableIndex(Blueprint, VarName);
+						if (VarIndex != INDEX_NONE)
+						{
+							Blueprint->NewVariables.RemoveAt(VarIndex);
+							FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);
+						}
 						Node->bIsVariable = false;
 					}
 				}
@@ -846,15 +859,15 @@ public:
 struct FDesignerDetailsSummoner_Template : public FWorkflowTabFactory
 {
 public:
-	FDesignerDetailsSummoner_Template(class FDesignerApplicationMode_Template* DesignerApplicationMode, TSharedPtr<class FGraphEditorToolkit_Template> InDesignGraphEditor);
+	FDesignerDetailsSummoner_Template(class FDesignerApplicationMode_Template* DesignerApplicationMode, TSharedPtr<class FGraphEditor_Template> InDesignGraphEditor);
 
 	FDesignerApplicationMode_Template* DesignerApplicationMode;
-	TWeakPtr<class FGraphEditorToolkit_Template> InDesignGraphEditor;
+	TWeakPtr<class FGraphEditor_Template> InDesignGraphEditor;
 
 	TSharedRef<SWidget> CreateTabBody(const FWorkflowTabSpawnInfo& Info) const override;
 };
 
-FDesignerDetailsSummoner_Template::FDesignerDetailsSummoner_Template(class FDesignerApplicationMode_Template* DesignerApplicationMode, TSharedPtr<class FGraphEditorToolkit_Template> InDesignGraphEditor)
+FDesignerDetailsSummoner_Template::FDesignerDetailsSummoner_Template(class FDesignerApplicationMode_Template* DesignerApplicationMode, TSharedPtr<class FGraphEditor_Template> InDesignGraphEditor)
 	: FWorkflowTabFactory(FDesignerApplicationMode_Template::DetailsTabId, InDesignGraphEditor),
 	DesignerApplicationMode(DesignerApplicationMode),
 	InDesignGraphEditor(InDesignGraphEditor)
@@ -878,15 +891,15 @@ TSharedRef<SWidget> FDesignerDetailsSummoner_Template::CreateTabBody(const FWork
 struct FDesignerGraphSummoner_Template : public FWorkflowTabFactory
 {
 public:
-	FDesignerGraphSummoner_Template(class FDesignerApplicationMode_Template* DesignerApplicationMode, TSharedPtr<class FGraphEditorToolkit_Template> InDesignGraphEditor);
+	FDesignerGraphSummoner_Template(class FDesignerApplicationMode_Template* DesignerApplicationMode, TSharedPtr<class FGraphEditor_Template> InDesignGraphEditor);
 
 	FDesignerApplicationMode_Template* DesignerApplicationMode;
-	TWeakPtr<class FGraphEditorToolkit_Template> InDesignGraphEditor;
+	TWeakPtr<class FGraphEditor_Template> InDesignGraphEditor;
 
 	TSharedRef<SWidget> CreateTabBody(const FWorkflowTabSpawnInfo& Info) const override;
 };
 
-FDesignerGraphSummoner_Template::FDesignerGraphSummoner_Template(class FDesignerApplicationMode_Template* DesignerApplicationMode, TSharedPtr<class FGraphEditorToolkit_Template> InDesignGraphEditor)
+FDesignerGraphSummoner_Template::FDesignerGraphSummoner_Template(class FDesignerApplicationMode_Template* DesignerApplicationMode, TSharedPtr<class FGraphEditor_Template> InDesignGraphEditor)
 	:FWorkflowTabFactory(FDesignerApplicationMode_Template::GraphTabId, InDesignGraphEditor),
 	DesignerApplicationMode(DesignerApplicationMode),
 	InDesignGraphEditor(InDesignGraphEditor)
@@ -908,7 +921,7 @@ TSharedRef<SWidget> FDesignerGraphSummoner_Template::CreateTabBody(const FWorkfl
 		.GraphEvents(DesignerApplicationMode->DesignerGraphEvents);
 }
 
-FDesignerApplicationMode_Template::FDesignerApplicationMode_Template(TSharedPtr<class FGraphEditorToolkit_Template> GraphEditorToolkit)
+FDesignerApplicationMode_Template::FDesignerApplicationMode_Template(TSharedPtr<class FGraphEditor_Template> GraphEditorToolkit)
 	:FBlueprintApplicationModeTemplate(GraphEditorToolkit, FBlueprintApplicationModesTemplate::DesignerMode)
 {
 	WorkspaceMenuCategory = FWorkspaceItem::NewGroup(LOCTEXT("WorkspaceMenu_Designer_Template", "Designer_Template"));
@@ -961,7 +974,7 @@ FDesignerApplicationMode_Template::FDesignerApplicationMode_Template(TSharedPtr<
 
 void FDesignerApplicationMode_Template::RegisterTabFactories(TSharedPtr<FTabManager> InTabManager)
 {
-	FGraphEditorToolkit_Template *BP = GetBlueprintEditor();
+	FGraphEditor_Template *BP = GetBlueprintEditor();
 
 	BP->RegisterToolbarTab(InTabManager.ToSharedRef());
 	BP->PushTabFactories(TabFactories);

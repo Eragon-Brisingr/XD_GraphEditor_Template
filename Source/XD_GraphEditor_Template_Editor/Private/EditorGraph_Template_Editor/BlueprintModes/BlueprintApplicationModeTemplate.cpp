@@ -26,7 +26,7 @@ FText FBlueprintApplicationModesTemplate::GetLocalizedMode(const FName InMode)
 	return *OutDesc;
 }
 
-FBlueprintApplicationModeTemplate::FBlueprintApplicationModeTemplate(TSharedPtr<class FGraphEditorToolkit_Template> GraphEditorToolkit, FName InModeName)
+FBlueprintApplicationModeTemplate::FBlueprintApplicationModeTemplate(TSharedPtr<class FGraphEditor_Template> GraphEditorToolkit, FName InModeName)
 	: FBlueprintEditorApplicationMode(GraphEditorToolkit, InModeName, FBlueprintApplicationModesTemplate::GetLocalizedMode, false, false)
 	, MyEditor_Template(GraphEditorToolkit)
 {
@@ -34,7 +34,7 @@ FBlueprintApplicationModeTemplate::FBlueprintApplicationModeTemplate(TSharedPtr<
 
 void FBlueprintApplicationModeTemplate::AddModeSwitchToolBarExtension()
 {
-	FGraphEditorToolkit_Template* GraphEditor = MyEditor_Template.Pin().Get();
+	FGraphEditor_Template* GraphEditor = MyEditor_Template.Pin().Get();
 
 	ToolbarExtender->AddToolBarExtension("Asset",
 		EExtensionHook::After,
@@ -113,7 +113,7 @@ void FBlueprintApplicationModeTemplate::AddModeSwitchToolBarExtension()
 
 UEditorGraph_Blueprint_Template* FBlueprintApplicationModeTemplate::GetBlueprint() const
 {
-	if (FGraphEditorToolkit_Template* Editor = MyEditor_Template.Pin().Get())
+	if (FGraphEditor_Template* Editor = MyEditor_Template.Pin().Get())
 	{
 		return Editor->GetTemplateBlueprintObj();
 	}
@@ -123,7 +123,7 @@ UEditorGraph_Blueprint_Template* FBlueprintApplicationModeTemplate::GetBlueprint
 	}
 }
 
-class FGraphEditorToolkit_Template* FBlueprintApplicationModeTemplate::GetBlueprintEditor() const
+class FGraphEditor_Template* FBlueprintApplicationModeTemplate::GetBlueprintEditor() const
 {
 	return MyEditor_Template.Pin().Get();
 }

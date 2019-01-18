@@ -2,7 +2,7 @@
 
 #include "GraphEditor_Template_AssetTypeActions.h"
 #include "XD_GraphEditor_Template_Editor.h"
-#include "GraphEditorToolkit_Template.h"
+#include "GraphEditor_Template.h"
 #include "ModuleManager.h"
 #include "EditorGraph_Blueprint_Template.h"
 
@@ -48,7 +48,7 @@ void FGraphEditor_Template_AssetTypeActions::OpenAssetEditor(const TArray<UObjec
 		auto CustomBP = Cast<UEditorGraph_Blueprint_Template>(*Object);
 		if (CustomBP != nullptr)
 		{
-			TSharedRef<FGraphEditorToolkit_Template> EditorToolkit = MakeShareable(new FGraphEditorToolkit_Template());
+			TSharedRef<FGraphEditor_Template> EditorToolkit = MakeShareable(new FGraphEditor_Template());
 			EditorToolkit->InitGarph_TemplateEditor(Mode, EditWithinLevelEditor, CustomBP);
 		}
 	}

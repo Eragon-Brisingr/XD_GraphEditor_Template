@@ -14,11 +14,11 @@ class UEditorGraph_Template;
 /**
  * 
  */
-class FGraphEditorToolkit_Template : public FBlueprintEditor
+class FGraphEditor_Template : public FBlueprintEditor
 {
 public:
-	FGraphEditorToolkit_Template();
-	~FGraphEditorToolkit_Template();
+	FGraphEditor_Template();
+	~FGraphEditor_Template();
 
 	// Inherited via FAssetEditorToolkit
 	FLinearColor GetWorldCentricTabColorScale() const override;

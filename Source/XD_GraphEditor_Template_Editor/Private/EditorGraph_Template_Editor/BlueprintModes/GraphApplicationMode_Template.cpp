@@ -3,7 +3,7 @@
 #include "GraphApplicationMode_Template.h"
 #include "BlueprintEditorTabs.h"
 
-FGraphApplicationMode_Template::FGraphApplicationMode_Template(TSharedPtr<class FGraphEditorToolkit_Template> GraphEditorToolkit)
+FGraphApplicationMode_Template::FGraphApplicationMode_Template(TSharedPtr<class FGraphEditor_Template> GraphEditorToolkit)
 	: FBlueprintApplicationModeTemplate(GraphEditorToolkit, FBlueprintApplicationModesTemplate::GraphMode)
 {
 	TabLayout = FTabManager::NewLayout("Graph_Template_Layout_v1")

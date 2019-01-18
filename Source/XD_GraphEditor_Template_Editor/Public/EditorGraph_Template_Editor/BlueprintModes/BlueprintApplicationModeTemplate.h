@@ -24,16 +24,16 @@ private:
 class XD_GRAPHEDITOR_TEMPLATE_EDITOR_API FBlueprintApplicationModeTemplate : public FBlueprintEditorApplicationMode
 {
 public:
-	FBlueprintApplicationModeTemplate(TSharedPtr<class FGraphEditorToolkit_Template> GraphEditorToolkit, FName InModeName);
+	FBlueprintApplicationModeTemplate(TSharedPtr<class FGraphEditor_Template> GraphEditorToolkit, FName InModeName);
 
 	void AddModeSwitchToolBarExtension();
 
 protected:
 	UEditorGraph_Blueprint_Template* GetBlueprint() const;
 
-	class FGraphEditorToolkit_Template* GetBlueprintEditor() const;
+	class FGraphEditor_Template* GetBlueprintEditor() const;
 
-	TWeakPtr<class FGraphEditorToolkit_Template> MyEditor_Template;
+	TWeakPtr<class FGraphEditor_Template> MyEditor_Template;
 
 	// Set of spawnable tabs in the mode
 	FWorkflowAllowedTabSet TabFactories;

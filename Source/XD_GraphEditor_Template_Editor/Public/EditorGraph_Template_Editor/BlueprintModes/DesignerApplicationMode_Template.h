@@ -13,7 +13,7 @@ class SGraphEditor;
 class XD_GRAPHEDITOR_TEMPLATE_EDITOR_API FDesignerApplicationMode_Template : public FBlueprintApplicationModeTemplate
 {
 public:
-	FDesignerApplicationMode_Template(TSharedPtr<class FGraphEditorToolkit_Template> GraphEditorToolkit);
+	FDesignerApplicationMode_Template(TSharedPtr<class FGraphEditor_Template> GraphEditorToolkit);
 	void RegisterTabFactories(TSharedPtr<FTabManager> InTabManager) override;
 	void PreDeactivateMode() override;
 	void PostActivateMode() override;

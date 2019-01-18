@@ -113,6 +113,12 @@ GatherClasses 搜集UClass信息
 
 # 拓展蓝图编辑器
 
+## 效果
+
+![蓝图设计图表](.\Images\蓝图设计图表.png)
+
+![蓝图编码图表](.\Images\蓝图编码图表.png)
+
 ## 继承类型
 
 ### UBlueprint
@@ -136,10 +142,37 @@ GatherClasses 搜集UClass信息
 
 1. 蓝图编译的过程定义
 2. 在模块初始化时注册该编译器，FKismetCompilerContext::RegisterCompilerForBP
+3. 重写FinishCompilingClass在蓝图编译后进行图表的拷贝、绑定事件的添加等操作
 
 ## S类型
 
 ### SGraphEditor
 
+图表编辑器的S类型
+
 `SNew(SGraphEditor).AdditionalCommands(Commands).GraphToEdit(EdGraph);`
+
+## 运行时绑定事件
+
+### PropertyEditor拓展类型
+
+1. IDetailPropertyExtensionHandler 每个属性的拓展
+2. IDetailCustomization 拓展整个Detail面板
+
+### 添加绑定事件
+
+1. FKismetEditorUtilities::FindBoundEventForComponent
+2. FKismetEditorUtilities::CreateNewBoundEventForClass
+
+### UDynamicBlueprintBinding类型
+
+1. 蓝图绑定事件的基类，子类UComponentDelegateBinding就是对象绑定
+2. UBlueprintGeneratedClass::DynamicBindingObjects中存储了运行时可绑定的事件
+3. UDynamicBlueprintBinding::BindDynamicDelegates执行运行时绑定
+
+### 自定义函数绑定
+
+1. 参考UMG模块中的FDelegateEditorBinding与FDelegateRuntimeBinding
+2. 自己的蓝图类中定义EditorBinding，GeneratedClass类型中定义RuntimeBinding
+3. 自己通过反射写运行时绑定的操作
 
