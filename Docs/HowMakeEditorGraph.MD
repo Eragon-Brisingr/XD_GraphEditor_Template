@@ -125,6 +125,7 @@ GatherClasses 搜集UClass信息
 
 1. 自定义蓝图的资源类型
 2. 调用FKismetEditorUtilities::CreateBlueprint创建蓝图资源
+3. 重写GetReparentingRules定义该蓝图类型可使用的父类
 
 ### UBlueprintGeneratedClass
 
@@ -143,6 +144,7 @@ GatherClasses 搜集UClass信息
 1. 蓝图编译的过程定义
 2. 在模块初始化时注册该编译器，FKismetCompilerContext::RegisterCompilerForBP
 3. 重写FinishCompilingClass在蓝图编译后进行图表的拷贝、绑定事件的添加等操作
+4. 重写CreateClassVariablesFromBlueprint用于设计图表的变量暴露，比FBlueprintEditorUtils::AddMemberVariable的好处为变量在蓝图中不能编辑
 
 ## S类型
 

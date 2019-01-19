@@ -239,13 +239,13 @@ public:
 							TArray<UEdGraph*> AllGraphs;
 							Blueprint->GetAllGraphs(AllGraphs);
 
-							FGuid SearchForGuid = Binding.MemberGuid;
+							FGuid SearchForGuid = Binding.MemberFunctionGuid;
 
 							for (UEdGraph* Graph : AllGraphs)
 							{
 								if (Graph->GraphGuid == SearchForGuid)
 								{
-									FName FoundName = Blueprint->GetFieldNameFromClassByGuid<UFunction>(Blueprint->GeneratedClass, Binding.MemberGuid);
+									FName FoundName = Blueprint->GetFieldNameFromClassByGuid<UFunction>(Blueprint->GeneratedClass, Binding.MemberFunctionGuid);
 									return FText::FromString(FName::NameToDisplayString(FoundName.ToString(), false));
 								}
 							}
@@ -283,7 +283,7 @@ public:
 							TArray<UEdGraph*> AllGraphs;
 							Blueprint->GetAllGraphs(AllGraphs);
 
-							FGuid SearchForGuid = Binding.MemberGuid;
+							FGuid SearchForGuid = Binding.MemberFunctionGuid;
 
 							for (UEdGraph* Graph : AllGraphs)
 							{
@@ -323,7 +323,7 @@ public:
 							TArray<UEdGraph*> AllGraphs;
 							Blueprint->GetAllGraphs(AllGraphs);
 
-							FGuid SearchForGuid = Binding.MemberGuid;
+							FGuid SearchForGuid = Binding.MemberFunctionGuid;
 
 							for (UEdGraph* Graph : AllGraphs)
 							{
@@ -389,7 +389,6 @@ public:
 				Blueprint->Modify();
 
 				FString Pre = GeneratePureBindings ? FString(TEXT("Get")) : FString(TEXT("On"));
-
  				FString	ObjectName = TEXT("_") + Object->GetName() + TEXT("_");
 
 				FString Post = PropertyHandle->GetProperty()->GetName();
@@ -421,7 +420,7 @@ public:
 				FDelegateEditorBinding_Template Binding;
 				Binding.Object = Object;
 				Binding.PropertyName = PropertyHandle->GetProperty()->GetFName();
-				Binding.MemberGuid = FunctionGraph->GraphGuid;
+				Binding.MemberFunctionGuid = FunctionGraph->GraphGuid;
 				Blueprint->Bindings.Add(Binding);
 
 				GotoFunction(FunctionGraph);
@@ -779,9 +778,19 @@ public:
 				{
 					if (Node->bIsVariable)
 					{
-						FBlueprintEditorUtils::RenameMemberVariable(Blueprint, Node->GetFName(), NewName);
+						FBlueprintEditorUtils::ReplaceVariableReferences(Blueprint, Node->GetFName(), NewName);
+						FBlueprintEditorUtils::ValidateBlueprintChildVariables(Blueprint, NewName);
+						FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);
 					}
+
+					FDelegateEditorBinding_Template* Binding = Blueprint->Bindings.FindByPredicate([&](const FDelegateEditorBinding_Template& E) {return E.Object.Get() == Node; });
+
 					Node->Rename(NewName);
+
+					if (Binding)
+					{
+						Binding->Object = Node;
+					}
 
 					Editor.Pin()->GetEditorGraph()->RefreshNodes();
 				}
@@ -819,36 +828,8 @@ public:
 			if (UBP_GraphNode_Template* Node = Cast<UBP_GraphNode_Template>(Obj.Get()))
 			{
 				FName VarName = Node->GetFName();
-				if (CheckState == ECheckBoxState::Checked)
-				{
-					if (Node->bIsVariable == false)
-					{
-						if (FBlueprintEditorUtils::AddMemberVariable(Blueprint, VarName, FEdGraphPinType(UEdGraphSchema_K2::PC_Object, NAME_None, Node->GetClass(), EPinContainerType::None, false, FEdGraphTerminalType())))
-						{
-							FBPVariableDescription* BP_Var = Blueprint->NewVariables.FindByPredicate([&](const FBPVariableDescription E) {return E.VarName == VarName; });
-
-							BP_Var->Category = LOCTEXT("设计图表引用", "设计图表引用");
-							BP_Var->PropertyFlags = CPF_BlueprintVisible | CPF_ExportObject | CPF_InstancedReference | CPF_RepSkip | CPF_PersistentInstance | CPF_HasGetValueTypeHash;
-
-							FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);
-
-							Node->bIsVariable = true;
-						}
-					}
-				}
-				else
-				{
-					if (Node->bIsVariable == true)
-					{
-						const int32 VarIndex = FBlueprintEditorUtils::FindNewVariableIndex(Blueprint, VarName);
-						if (VarIndex != INDEX_NONE)
-						{
-							Blueprint->NewVariables.RemoveAt(VarIndex);
-							FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);
-						}
-						Node->bIsVariable = false;
-					}
-				}
+				Node->bIsVariable = CheckState == ECheckBoxState::Checked;
+				FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);
 			}
 		}
 

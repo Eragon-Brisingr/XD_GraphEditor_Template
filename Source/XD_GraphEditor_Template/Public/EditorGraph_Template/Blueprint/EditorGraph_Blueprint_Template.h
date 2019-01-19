@@ -26,7 +26,7 @@ public:
 
 	/** If it's an actual Function Graph in the blueprint that we're bound to, there's a GUID we can use to lookup that function, to deal with renames better.  This is that GUID. */
 	UPROPERTY()
-	FGuid MemberGuid;
+	FGuid MemberFunctionGuid;
 
 	bool DoesBindingTargetExist(UEditorGraph_Blueprint_Template* Blueprint) const;
 
@@ -43,6 +43,9 @@ class XD_GRAPHEDITOR_TEMPLATE_API UEditorGraph_Blueprint_Template : public UBlue
 public:
 	UEditorGraph_Blueprint_Template();
 
+	UClass* GetBlueprintClass() const override;
+	void GetReparentingRules(TSet<const UClass*>& AllowedChildrenOfClasses, TSet<const UClass*>& DisallowedChildrenOfClasses) const override;
+public:
 	UPROPERTY()
 	class UBP_Graph_Template* DesignerGraph_Template;
 

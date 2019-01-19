@@ -37,7 +37,7 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Graph Data")
     void InitGraph(UObject* ParentObject);
 
-
+	TArray<UBP_GraphNode_Template*> GetAllNodes() const { return Nodes; }
 
 #if WITH_EDITORONLY_DATA
 

@@ -5,8 +5,11 @@
 #include "BlueprintGeneratedClass_Template.h"
 #include "KismetReinstanceUtilities.h"
 #include "BP_Graph_Template.h"
+#include "BP_GraphNode_Template.h"
 
 #define LOCTEXT_NAMESPACE "GraphEditor_Template"
+
+#define CPF_Instanced (CPF_PersistentInstance | CPF_ExportObject | CPF_InstancedReference)
 
 FBP_Compiler_Template::FBP_Compiler_Template(UEditorGraph_Blueprint_Template* SourceSketch, FCompilerResultsLog& InMessageLog, const FKismetCompilerOptions& InCompilerOptions, TArray<UObject*>* InObjLoaded)
 	: FKismetCompilerContext(SourceSketch, InMessageLog, InCompilerOptions, InObjLoaded)
@@ -34,6 +37,34 @@ void FBP_Compiler_Template::SpawnNewClass(const FString& NewClassName)
 	}
 }
 
+void FBP_Compiler_Template::CreateClassVariablesFromBlueprint()
+{
+	Super::CreateClassVariablesFromBlueprint();
+
+	UEditorGraph_Blueprint_Template* EditorGraph_Blueprint = GetGraphBlueprint();
+
+	for (UBP_GraphNode_Template* Node : EditorGraph_Blueprint->DesignerGraph_Template->GetAllNodes())
+	{
+		if (Node->bIsVariable)
+		{
+			UProperty* NodeProperty = CreateVariable(Node->GetFName(), FEdGraphPinType(UEdGraphSchema_K2::PC_Object, NAME_None, Node->GetClass(), EPinContainerType::None, false, FEdGraphTerminalType()));
+			if (NodeProperty)
+			{
+				NodeProperty->SetPropertyFlags(CPF_BlueprintVisible);
+				NodeProperty->SetPropertyFlags(CPF_BlueprintReadOnly);
+				NodeProperty->SetPropertyFlags(CPF_Instanced);
+				NodeProperty->SetPropertyFlags(CPF_RepSkip);
+				NodeProperty->SetMetaData(TEXT("Category"), TEXT("设计图表引用"));
+			}
+		}
+	}
+}
+
+UEditorGraph_Blueprint_Template* FBP_Compiler_Template::GetGraphBlueprint() const
+{
+	return CastChecked<UEditorGraph_Blueprint_Template>(Blueprint);
+}
+
 void FBP_Compiler_Template::FinishCompilingClass(UClass* Class)
 {
 	UBlueprintGeneratedClass_Template* BlueprintGeneratedClass = CastChecked<UBlueprintGeneratedClass_Template>(Class);
@@ -53,12 +84,11 @@ void FBP_Compiler_Template::FinishCompilingClass(UClass* Class)
 				if (Binding.DoesBindingTargetExist(Blueprint_Template))
 				{
 					BlueprintGeneratedClass->Bindings.Add(Binding.ToRuntimeBinding(Blueprint_Template));
-				}
-				else
-				{
-					Blueprint_Template->Bindings.RemoveAt(Idx--);
+					continue;
 				}
 			}
+
+			Blueprint_Template->Bindings.RemoveAt(Idx--);
 		}
 	}
 
@@ -67,6 +97,11 @@ void FBP_Compiler_Template::FinishCompilingClass(UClass* Class)
 
 bool FBP_Compiler_Template::IsBindingValid(const FDelegateEditorBinding_Template& Binding, UClass* Class, class UEditorGraph_Blueprint_Template* Blueprint, FCompilerResultsLog& MessageLog)
 {
+	if (!Binding.Object.IsValid())
+	{
+		return false;
+	}
+
 	if (UFunction* Function = Class->FindFunctionByName(Binding.GetFunctionName(Blueprint), EIncludeSuperFlag::IncludeSuper))
 	{
 		UDelegateProperty* DelegateProperty = FindField<UDelegateProperty>(Binding.Object->GetClass(), FName(*(Binding.PropertyName.ToString() + TEXT("Delegate"))));
