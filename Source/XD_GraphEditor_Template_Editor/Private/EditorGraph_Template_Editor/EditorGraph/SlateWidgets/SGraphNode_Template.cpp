@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018 Jhonny Hueller
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 #include "SGraphNode_Template.h"
 #include "Slate.h"
 #include "Editor_GraphNode_Template.h"

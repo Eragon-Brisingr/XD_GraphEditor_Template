@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018 Jhonny Hueller
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 #include "BP_Graph_Template.h"
 #include "BP_GraphNode_Template.h"
 #define LOCTEXT_NAMESPACE "BP_Graph_Template"

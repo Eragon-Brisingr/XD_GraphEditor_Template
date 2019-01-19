@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018 Jhonny Hueller
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 #include "EditorGraphSchema_Template.h"
 #include "SubclassOf.h"
 #include "GraphEditor_Template_Log.h"

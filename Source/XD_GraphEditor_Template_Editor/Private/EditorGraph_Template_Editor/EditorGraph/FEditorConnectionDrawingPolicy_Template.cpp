@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018 Jhonny Hueller
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 #include "FEditorConnectionDrawingPolicy_Template.h"
 #include "DrawElements.h"
 
