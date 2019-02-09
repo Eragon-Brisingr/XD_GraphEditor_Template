@@ -55,6 +55,8 @@ FString FGraphEditor_Template::GetWorldCentricTabPrefix() const
 
 void FGraphEditor_Template::InitGarph_TemplateEditor(const EToolkitMode::Type InMode, const TSharedPtr<class IToolkitHost>& InToolkitHost, UEditorGraph_Blueprint_Template* InBP)
 {
+	InitBlueprintEditor(InMode, InToolkitHost, { InBP }, true);
+
 	DesignerGraph_Template = InBP->DesignerGraph_Template;
 
 	if (DesignerGraph_Template->EdGraph == nullptr)
@@ -69,8 +71,6 @@ void FGraphEditor_Template::InitGarph_TemplateEditor(const EToolkitMode::Type In
 	}
 
 	GetDesignerGraph()->OwningGraphEditor = this;
-
-	InitBlueprintEditor(InMode, InToolkitHost, { InBP }, true);
 
 	UpdatePreviewActor(GetBlueprintObj(), true);
 
