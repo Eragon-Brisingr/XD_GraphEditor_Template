@@ -45,5 +45,5 @@ public:
 
 	UBP_Graph_Template* DesignerGraph_Template;
 
-	UEditorGraph_Template* GetEditorGraph() const;
+	UEditorGraph_Template* GetDesignerGraph() const;
 };

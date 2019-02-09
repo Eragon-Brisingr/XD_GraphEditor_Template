@@ -11,6 +11,7 @@
  * 
  */
 class UBP_Graph_Template;
+class FGraphEditor_Template;
 
 UCLASS()
 class UEditorGraph_Template : public UEdGraph
@@ -24,4 +25,6 @@ public:
 	virtual void RefreshNodes();
 	virtual void MapNamedNodes();
 	virtual UBP_Graph_Template* GetGraphAsset();
+
+	FGraphEditor_Template* OwningGraphEditor;
 };

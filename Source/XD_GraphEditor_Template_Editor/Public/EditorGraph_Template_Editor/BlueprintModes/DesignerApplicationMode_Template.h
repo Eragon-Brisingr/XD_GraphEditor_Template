@@ -24,7 +24,7 @@ public:
 public:
 	TWeakPtr<SGraphEditor> DesignerGraphEditor;
 	SGraphEditor* GetDesignerGraphEditor() const { return DesignerGraphEditor.Pin().Get(); }
-	TWeakPtr<class SDetails_TemplateView> DesignerDetails;
+	TWeakPtr<class SDetailsView_Template> DesignerDetails;
 
 	TSharedPtr<FUICommandList> DesignerEditorCommands;
 

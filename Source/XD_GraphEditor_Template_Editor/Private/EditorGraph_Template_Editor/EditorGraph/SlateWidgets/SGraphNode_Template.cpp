@@ -6,16 +6,21 @@
 #include "SGraphPin_Template.h"
 #include "GraphEditor_Template_Log.h"
 #include "SCommentBubble.h"
+#include "IDetailsView.h"
+#include "PropertyEditorModule.h"
+#include "ModuleManager.h"
+#include "SPropertyBinding_Template.h"
+#include "EditorGraph_Template.h"
 
 #define LOCTEXT_NAMESPACE "SBP_Graph_TemplateNode"
+
+BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
 void SGraphNode_Template::Construct(const FArguments & InArgs, UEdGraphNode * InNode)
 {
 	GraphNode = InNode;
 	UpdateGraphNode();
 }
-
-BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
 void SGraphNode_Template::UpdateGraphNode()
 {
@@ -190,8 +195,23 @@ void SGraphNode_Template::CreateContent()
 {
 	UEditor_GraphNode_Template* Node = Cast<UEditor_GraphNode_Template>(GraphNode);
 
-	ContentWidget->SetContent(Node->GetContentWidget().ToSharedRef());
-	ContentWidget->SetMinDesiredWidth(200.f);
+	if (Node->BP_Node_Template)
+	{
+		FDetailsViewArgs DetailsViewArgs;
+		DetailsViewArgs.bAllowSearch = false;
+		DetailsViewArgs.bLockable = false;
+		DetailsViewArgs.NameAreaSettings = FDetailsViewArgs::HideNameArea;
+		DetailsViewArgs.DefaultsOnlyVisibility = EEditDefaultsOnlyNodeVisibility::Hide;
+
+		FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
+		TSharedRef<IDetailsView> PropertyView = PropertyEditorModule.CreateDetailView(DetailsViewArgs);
+		PropertyView->SetExtensionHandler(MakeShareable(new FDetailExtensionHandler_Template(CastChecked<UEditorGraph_Template>(Node->GetGraph())->OwningGraphEditor)));
+
+		PropertyView->SetObject(Node->BP_Node_Template);
+
+		ContentWidget->SetContent(PropertyView);
+		ContentWidget->SetMinDesiredWidth(200.f);
+	}
 }
 
 FText SGraphNode_Template::GetBP_NodeName() const

@@ -4,9 +4,6 @@
 #include "BP_Graph_Template.h"
 #include "EditorGraph_Template.h"
 #include "SGraphNode_Template.h"
-#include "IDetailsView.h"
-#include "PropertyEditorModule.h"
-#include "ModuleManager.h"
 #include "GraphEditor_Template_Log.h"
 #include "GenericCommands.h"
 #include "GraphEditorActions.h"
@@ -23,20 +20,6 @@ TSharedPtr<SGraphNode> UEditor_GraphNode_Template::CreateVisualWidget()
 {
 	SlateNode= SNew(SGraphNode_Template, this);
 	return SlateNode;
-}
-
-TSharedPtr<SWidget> UEditor_GraphNode_Template::GetContentWidget()
-{
-	FDetailsViewArgs DetailsViewArgs;
-	DetailsViewArgs.bAllowSearch = false;
-	DetailsViewArgs.bLockable = false;
-	DetailsViewArgs.NameAreaSettings = FDetailsViewArgs::HideNameArea;
-	DetailsViewArgs.DefaultsOnlyVisibility = EEditDefaultsOnlyNodeVisibility::Hide;
-
-	FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
-	TSharedPtr<IDetailsView> View = PropertyEditorModule.CreateDetailView(DetailsViewArgs);
-	View->SetObject(BP_Node_Template);
-	return View;
 }
 
 void UEditor_GraphNode_Template::UpdateVisualNode()

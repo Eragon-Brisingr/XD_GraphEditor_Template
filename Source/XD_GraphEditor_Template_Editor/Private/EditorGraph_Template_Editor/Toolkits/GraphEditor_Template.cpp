@@ -29,6 +29,8 @@ FGraphEditor_Template::~FGraphEditor_Template()
 	{
 		EditorGraph_Blueprint->OnCompiled().RemoveAll(this);
 	}
+
+	GetDesignerGraph()->OwningGraphEditor = nullptr;
 }
 
 FLinearColor FGraphEditor_Template::GetWorldCentricTabColorScale() const
@@ -66,8 +68,8 @@ void FGraphEditor_Template::InitGarph_TemplateEditor(const EToolkitMode::Type In
 		Schema->CreateDefaultNodesForGraph(*DesignerGraph_Template->EdGraph);
 	}
 
-// 	FGenericCommands::Register();
-// 	FGraphEditorCommands::Register();
+	GetDesignerGraph()->OwningGraphEditor = this;
+
 	InitBlueprintEditor(InMode, InToolkitHost, { InBP }, true);
 
 	UpdatePreviewActor(GetBlueprintObj(), true);
@@ -134,7 +136,7 @@ class UEditorGraph_Blueprint_Template* FGraphEditor_Template::GetTemplateBluepri
 	return Cast<UEditorGraph_Blueprint_Template>(GetBlueprintObj());
 }
 
-UEditorGraph_Template* FGraphEditor_Template::GetEditorGraph() const
+UEditorGraph_Template* FGraphEditor_Template::GetDesignerGraph() const
 {
 	return Cast<UEditorGraph_Template>(DesignerGraph_Template->EdGraph);
 }

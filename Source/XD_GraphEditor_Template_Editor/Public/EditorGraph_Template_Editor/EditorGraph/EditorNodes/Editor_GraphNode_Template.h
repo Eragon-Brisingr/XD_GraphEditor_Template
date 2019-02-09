@@ -33,8 +33,6 @@ public:
 
 	virtual void PostCopyNode();
 
-	virtual TSharedPtr<SWidget> GetContentWidget();
-
 	virtual void UpdateVisualNode();
 
     virtual void SaveNodesAsChildren(TArray<UEdGraphNode*>& Children);
