@@ -3,13 +3,12 @@
 
 #include "CoreMinimal.h"
 #include "SGraphNode.h"
-#include "NotifyHook.h"
 #include "IDetailsView.h"
 
 /**
  * 
  */
-class SGraphNode_Template : public SGraphNode, public FNotifyHook
+class SGraphNode_Template : public SGraphNode
 {
 public:
 	SLATE_BEGIN_ARGS(SGraphNode_Template) {}

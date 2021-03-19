@@ -1,6 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
-#include "SGraphPin_Template.h"
-#include "GraphEditorStyle_Template.h"
+#include "EditorGraph_Template_Editor/EditorGraph/SlateWidgets/SGraphPin_Template.h"
+
+#include "EditorGraph_Template_Editor/Utility/GraphEditorStyle_Template.h"
 
 
 void SGraphPin_Template::Construct(const FArguments& InArgs, UEdGraphPin* InPin)

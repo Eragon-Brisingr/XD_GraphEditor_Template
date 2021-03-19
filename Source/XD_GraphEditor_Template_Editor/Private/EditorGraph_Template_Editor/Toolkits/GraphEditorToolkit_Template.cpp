@@ -1,17 +1,18 @@
 ﻿// Copyright (c) 2018 Jhonny Hueller
-#include "GraphEditorToolkit_Template.h"
-#include "GraphEditor_Template_Log.h"
-#include "PropertyEditorModule.h"
-#include "ModuleManager.h"
-#include "Slate.h"
-#include "BlueprintEditorUtils.h"
-#include "GraphEditorActions.h"
-#include "EditorGraph_Template.h"
-#include "EditorGraphSchema_Template.h"
-#include "EdGraphUtilities.h"
-#include "PlatformApplicationMisc.h"
-#include "Editor_GraphNode_Template.h"
-#include "Editor.h"
+#include "EditorGraph_Template_Editor/Toolkits/GraphEditorToolkit_Template.h"
+#include <PropertyEditorModule.h>
+#include <Slate.h>
+#include <GraphEditorActions.h>
+#include <EdGraphUtilities.h>
+#include <Editor.h>
+#include <HAL/PlatformApplicationMisc.h>
+#include <Kismet2/BlueprintEditorUtils.h>
+
+#include "EditorGraph_Template/Graphs/BP_Graph_Template.h"
+#include "EditorGraph_Template_Editor/EditorGraph/EditorGraphSchema_Template.h"
+#include "EditorGraph_Template_Editor/EditorGraph/EditorGraph_Template.h"
+#include "EditorGraph_Template_Editor/EditorGraph/EditorNodes/Editor_GraphNode_Template.h"
+#include "EditorGraph_Template_Editor/Utility/GraphEditor_Template_Log.h"
 
 
 #define LOCTEXT_NAMESPACE "GraphEditorToolkit_Template"
@@ -49,7 +50,7 @@ TSharedRef<SDockTab> FGraphEditorToolkit_Template::HandleTabManagerSpawnTabDetai
 
 	DetailsWidget = PropertyEditorModule.CreateDetailView(DetailsViewArgs);
 	DetailsWidget->SetObject(GraphAsset);
-
+	
 	return SNew(SDockTab)
 		.TabRole(ETabRole::PanelTab)
 		[
@@ -169,9 +170,8 @@ void FGraphEditorToolkit_Template::SaveAsset_Execute()
 	FAssetEditorToolkit::SaveAsset_Execute();
 }
 
-void FGraphEditorToolkit_Template::RegisterTabSpawners(const TSharedRef<FTabManager>& TabManager)
+void FGraphEditorToolkit_Template::RegisterTabSpawners(const TSharedRef<FTabManager>& InTabManager)
 {
-
 	WorkspaceMenuCategory = TabManager->AddLocalWorkspaceMenuCategory(LOCTEXT("EditorGraph_TemplateToolkitWorkspaceMenu", "Graph Editor"));
 	auto WorkspaceMenuCategoryRef = WorkspaceMenuCategory.ToSharedRef();
 	
@@ -182,14 +182,14 @@ void FGraphEditorToolkit_Template::RegisterTabSpawners(const TSharedRef<FTabMana
 		.SetDisplayName(LOCTEXT("GraphTab", "Graph Editor"))
 		.SetGroup(WorkspaceMenuCategoryRef);
 
-	FAssetEditorToolkit::RegisterTabSpawners(TabManager);
+	FAssetEditorToolkit::RegisterTabSpawners(InTabManager);
 }
 
-void FGraphEditorToolkit_Template::UnregisterTabSpawners(const TSharedRef<FTabManager>& TabManager)
+void FGraphEditorToolkit_Template::UnregisterTabSpawners(const TSharedRef<FTabManager>& InTabManager)
 {
-	FAssetEditorToolkit::UnregisterTabSpawners(TabManager);
-	TabManager->UnregisterTabSpawner(DetailsTabId);
-	TabManager->UnregisterTabSpawner(GraphTabId);
+	FAssetEditorToolkit::UnregisterTabSpawners(InTabManager);
+	InTabManager->UnregisterTabSpawner(DetailsTabId);
+	InTabManager->UnregisterTabSpawner(GraphTabId);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

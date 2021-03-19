@@ -1,13 +1,13 @@
 ﻿// Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
 
 #include "XD_GraphEditor_Template_Editor.h"
-#include "ModuleManager.h"
-#include "IAssetTools.h"
-#include "AssetToolsModule.h"
-#include "GraphEditor_Template_AssetTypeActions.h"
-#include "GraphEditor_Template_Log.h"
-#include "GraphEditor_ClassHelper_Template.h"
-#include "BP_GraphNode_Template.h"
+#include <Modules/ModuleManager.h>
+#include <IAssetTools.h>
+#include <AssetToolsModule.h>
+
+#include "EditorGraph_Template/Nodes/BP_GraphNode_Template.h"
+#include "EditorGraph_Template_Editor/AssetTypeActions/GraphEditor_Template_AssetTypeActions.h"
+#include "EditorGraph_Template_Editor/Utility/GraphEditor_ClassHelper_Template.h"
 
 #define LOCTEXT_NAMESPACE "FXD_GraphEditor_Template_EditorModule"
 

@@ -1,6 +1,6 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
-#include "BP_GraphNode_Template.h"
-#include "BP_Graph_Template.h"
+#include "EditorGraph_Template/Nodes/BP_GraphNode_Template.h"
+#include "EditorGraph_Template/Graphs/BP_Graph_Template.h"
 
 #define LOCTEXT_NAMESPACE "BP_GraphNode_Template" 
 
@@ -89,12 +89,12 @@ bool UBP_GraphNode_Template::RemoveLinkedNode(UBP_GraphNode_Template * NodeToRem
 
 bool UBP_GraphNode_Template::RemoveNodeFromParents(UBP_GraphNode_Template * NodeToRemove)
 {
-	return ParentNodes.Remove(NodeToRemove);
+	return ParentNodes.Remove(NodeToRemove) != 0;
 }
 
 bool UBP_GraphNode_Template::RemoveNodeFromChilds(UBP_GraphNode_Template * NodeToRemove)
 {
-	return ChildNodes.Remove(NodeToRemove);
+	return ChildNodes.Remove(NodeToRemove) != 0;
 }
 
 #undef LOCTEXT_NAMESPACE

@@ -1,10 +1,11 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
-#include "EditorGraph_Template.h"
-#include "BP_GraphNode_Template.h"
-#include "Editor_GraphNode_Template.h"
-#include "GraphEditor_Template_Log.h"
-#include "EdGraph/EdGraphPin.h"
-#include "BP_Graph_Template.h"
+#include "EditorGraph_Template_Editor/EditorGraph/EditorGraph_Template.h"
+#include <EdGraph/EdGraphPin.h>
+
+#include "EditorGraph_Template/Nodes/BP_GraphNode_Template.h"
+#include "EditorGraph_Template_Editor/EditorGraph/EditorNodes/Editor_GraphNode_Template.h"
+#include "EditorGraph_Template_Editor/Utility/GraphEditor_Template_Log.h"
+#include "EditorGraph_Template/Graphs/BP_Graph_Template.h"
 
 bool UEditorGraph_Template::IsNameUnique(const FText & InName)
 {

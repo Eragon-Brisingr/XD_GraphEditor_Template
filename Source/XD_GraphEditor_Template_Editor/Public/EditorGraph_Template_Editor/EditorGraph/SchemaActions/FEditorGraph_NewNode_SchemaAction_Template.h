@@ -3,8 +3,8 @@
 
 #include "CoreMinimal.h"
 #include "EdGraph/EdGraphSchema.h"
-#include "SubclassOf.h"
-#include "BP_GraphNode_Template.h"
+#include "Templates/SubclassOf.h"
+#include "EditorGraph_Template/Nodes/BP_GraphNode_Template.h"
 #include "FEditorGraph_NewNode_SchemaAction_Template.generated.h"
 
 /**
@@ -16,7 +16,9 @@ struct FEditorGraph_NewNode_SchemaAction_Template : public FEdGraphSchemaAction
 public:
 	GENERATED_USTRUCT_BODY()
 
-	FEditorGraph_NewNode_SchemaAction_Template() :FEdGraphSchemaAction(), NewNodeClass(nullptr) {}
+	FEditorGraph_NewNode_SchemaAction_Template()
+		: FEdGraphSchemaAction(), NewNodeClass(nullptr)
+	{}
 	FEditorGraph_NewNode_SchemaAction_Template(FText InNodeCategory, FText InMenuDesc, FText InToolTip, const int32 InGrouping, TSubclassOf<UBP_GraphNode_Template> InNodeClass) :FEdGraphSchemaAction(InNodeCategory, InMenuDesc, InToolTip, InGrouping), NewNodeClass(InNodeClass) {}
 
 	/** Execute this action, given the graph and schema, and possibly a pin that we were dragged from. Returns a node that was created by this action (if any). */

@@ -43,6 +43,7 @@ public class XD_GraphEditor_Template_Editor : ModuleRules
                 "AssetTools",
                 "GraphEditor",
                 "ApplicationCore",
+				"ToolMenus",
 
                 "XD_GraphEditor_Template",
 				// ... add private dependencies that you statically link with here ...	

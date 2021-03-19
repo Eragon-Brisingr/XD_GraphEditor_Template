@@ -1,8 +1,9 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
-#include "FEditorGraph_NewNode_SchemaAction_Template.h"
-#include "BP_Graph_Template.h"
-#include "Editor_GraphNode_Template.h"
-#include "EdGraph/EdGraph.h"
+#include "EditorGraph_Template_Editor/EditorGraph/SchemaActions/FEditorGraph_NewNode_SchemaAction_Template.h"
+#include <EdGraph/EdGraph.h>
+
+#include "EditorGraph_Template/Graphs/BP_Graph_Template.h"
+#include "EditorGraph_Template_Editor/EditorGraph/EditorNodes/Editor_GraphNode_Template.h"
 
 #define LOCTEXT_NAMESPACE "EditorGraph_TemplateSchemaAction_NewNode"
 

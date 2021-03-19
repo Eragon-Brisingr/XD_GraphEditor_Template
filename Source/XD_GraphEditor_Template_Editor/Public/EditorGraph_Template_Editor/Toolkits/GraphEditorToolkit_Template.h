@@ -2,11 +2,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AssetEditorToolkit.h"
-#include "NotifyHook.h"
+#include "Toolkits/AssetEditorToolkit.h"
+#include "Misc/NotifyHook.h"
 #include "GraphEditor.h"
 #include "IDetailsView.h"
-#include "BP_Graph_Template.h"
+
+class UBP_Graph_Template;
 
 /**
  * 
@@ -18,13 +19,13 @@ public:
 	~FGraphEditorToolkit_Template();
 
 	// Inherited via FAssetEditorToolkit
-	virtual FLinearColor GetWorldCentricTabColorScale() const override;
-	virtual FName GetToolkitFName() const override;
-	virtual FText GetBaseToolkitName() const override;
-	virtual FString GetWorldCentricTabPrefix() const override;
-	virtual void RegisterTabSpawners(const TSharedRef<FTabManager>& TabManager) override;
-	virtual void UnregisterTabSpawners(const TSharedRef<FTabManager>& TabManager) override;
-	virtual void SaveAsset_Execute() override;
+	FLinearColor GetWorldCentricTabColorScale() const override;
+	FName GetToolkitFName() const override;
+	FText GetBaseToolkitName() const override;
+	FString GetWorldCentricTabPrefix() const override;
+	void RegisterTabSpawners(const TSharedRef<FTabManager>& InTabManager) override;
+	void UnregisterTabSpawners(const TSharedRef<FTabManager>& InTabManager) override;
+	void SaveAsset_Execute() override;
 
 	virtual void InitGraphAssetEditor(const EToolkitMode::Type InMode, const TSharedPtr<class IToolkitHost>& InToolkitHost, UBP_Graph_Template* InGraph);
 	virtual void BlueprintCompiled();

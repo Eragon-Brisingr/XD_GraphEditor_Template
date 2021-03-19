@@ -1,8 +1,9 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
-#include "GraphEditor_Template_AssetTypeActions.h"
-#include "BP_Graph_Template.h"
-#include "GraphEditorToolkit_Template.h"
-#include "ModuleManager.h"
+#include "EditorGraph_Template_Editor/AssetTypeActions/GraphEditor_Template_AssetTypeActions.h"
+#include <Modules/ModuleManager.h>
+
+#include "EditorGraph_Template/Graphs/BP_Graph_Template.h"
+#include "EditorGraph_Template_Editor/Toolkits/GraphEditorToolkit_Template.h"
 #include "XD_GraphEditor_Template_Editor.h"
 
 #define LOCTEXT_NAMESPACE "GraphEditor_Template_AssetTypeActions"

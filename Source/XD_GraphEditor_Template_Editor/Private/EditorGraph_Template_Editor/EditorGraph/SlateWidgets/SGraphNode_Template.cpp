@@ -1,13 +1,17 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
-#include "SGraphNode_Template.h"
-#include "Slate.h"
-#include "Editor_GraphNode_Template.h"
-#include "SGraphPin.h"
-#include "SGraphPin_Template.h"
-#include "GraphEditor_Template_Log.h"
-#include "SCommentBubble.h"
+#include "EditorGraph_Template_Editor/EditorGraph/SlateWidgets/SGraphNode_Template.h"
+#include <Slate.h>
+#include <GraphEditorSettings.h>
+#include <SGraphPin.h>
+#include <SCommentBubble.h>
+
+#include "EditorGraph_Template_Editor/EditorGraph/EditorNodes/Editor_GraphNode_Template.h"
+#include "EditorGraph_Template_Editor/EditorGraph/SlateWidgets/SGraphPin_Template.h"
+#include "EditorGraph_Template_Editor/Utility/GraphEditor_Template_Log.h"
 
 #define LOCTEXT_NAMESPACE "SBP_Graph_TemplateNode"
+
+class UEditor_GraphNode_Template;
 
 void SGraphNode_Template::Construct(const FArguments & InArgs, UEdGraphNode * InNode)
 {
@@ -209,9 +213,13 @@ void SGraphNode_Template::CreateHeader()
     UEditor_GraphNode_Template* UEdNode = CastChecked<UEditor_GraphNode_Template>(GraphNode);
 
     if (UEdNode)
-        NodeHeader.Get()->SetVisibility((UEdNode->GetEdNodeName().IsEmpty()) ? EVisibility::Collapsed : EVisibility::Visible);
+    {
+		NodeHeader.Get()->SetVisibility((UEdNode->GetEdNodeName().IsEmpty()) ? EVisibility::Collapsed : EVisibility::Visible);
+    }
     else
-        GraphEditor_Template_Error_Log("An error occurred when creating the slate node headers");
+    {
+		GraphEditor_Template_Error_Log("An error occurred when creating the slate node headers");
+    }
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION

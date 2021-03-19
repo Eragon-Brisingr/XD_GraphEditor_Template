@@ -1,6 +1,5 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
-#include "FEditorConnectionDrawingPolicy_Template.h"
-#include "DrawElements.h"
+#include "EditorGraph_Template_Editor/EditorGraph/FEditorConnectionDrawingPolicy_Template.h"
 
 FEditorConnectionDrawingPolicy_Template::FEditorConnectionDrawingPolicy_Template(int32 InBackLayerID, int32 InFrontLayerID, float ZoomFactor, const FSlateRect& InClippingRect, FSlateWindowElementList& InDrawElements, UEdGraph* InGraphObj)
 	: FConnectionDrawingPolicy(InBackLayerID, InFrontLayerID, ZoomFactor, InClippingRect, InDrawElements)
