@@ -1,15 +1,16 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
-#include "EditorGraphSchema_Template.h"
-#include "SubclassOf.h"
-#include "GraphEditor_Template_Log.h"
-#include "FEditorConnectionDrawingPolicy_Template.h"
-#include "UObjectIterator.h"
-#include "FEditorGraph_NewNode_SchemaAction_Template.h"
-#include "EdGraph/EdGraph.h"
-#include "BP_Graph_Template.h"
-#include "Editor_GraphNode_Template.h"
-#include "GraphEditor_ClassHelper_Template.h"
-#include "ModuleManager.h"
+#include "EditorGraph_Template_Editor/EditorGraph/EditorGraphSchema_Template.h"
+#include <EdGraph/EdGraph.h>
+#include <UObject/UObjectIterator.h>
+#include <Modules/ModuleManager.h>
+#include <Templates/SubclassOf.h>
+
+#include "EditorGraph_Template_Editor/Utility/GraphEditor_Template_Log.h"
+#include "EditorGraph_Template_Editor/EditorGraph/FEditorConnectionDrawingPolicy_Template.h"
+#include "EditorGraph_Template_Editor/EditorGraph/SchemaActions/FEditorGraph_NewNode_SchemaAction_Template.h"
+#include "EditorGraph_Template/Graphs/BP_Graph_Template.h"
+#include "EditorGraph_Template_Editor/EditorGraph/EditorNodes/Editor_GraphNode_Template.h"
+#include "EditorGraph_Template_Editor/Utility/GraphEditor_ClassHelper_Template.h"
 #include "XD_GraphEditor_Template_Editor.h"
 
 #define LOCTEXT_NAMESPACE "EditorGraphSchema_Template"
@@ -68,12 +69,12 @@ UEditorGraphSchema_Template::UEditorGraphSchema_Template(const FObjectInitialize
  	ContextMenuBuilder.Append(BlueprintBuilder);
  }
  
- void UEditorGraphSchema_Template::GetContextMenuActions(const UEdGraph* CurrentGraph, const UEdGraphNode* InGraphNode, const UEdGraphPin* InGraphPin, FMenuBuilder* MenuBuilder, bool bIsDebugging) const
+ void UEditorGraphSchema_Template::GetContextMenuActions(class UToolMenu* Menu, class UGraphNodeContextMenuContext* Context) const
  {
- 	Super::GetContextMenuActions(CurrentGraph, InGraphNode, InGraphPin, MenuBuilder, bIsDebugging);
+     Super::GetContextMenuActions(Menu, Context);
  }
- 
- const FPinConnectionResponse UEditorGraphSchema_Template::CanCreateConnection(const UEdGraphPin * A, const UEdGraphPin * B) const
+
+ const FPinConnectionResponse UEditorGraphSchema_Template::CanCreateConnection(const UEdGraphPin* A, const UEdGraphPin* B) const
  {
  	if(!(A && B))
  		return FPinConnectionResponse(CONNECT_RESPONSE_DISALLOW, TEXT("Both pins must be available."));

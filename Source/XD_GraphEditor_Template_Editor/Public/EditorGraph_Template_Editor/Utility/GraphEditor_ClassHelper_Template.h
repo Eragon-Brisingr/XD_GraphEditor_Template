@@ -2,7 +2,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/ObjectMacros.h"
 #include "UObject/WeakObjectPtr.h"
 #include "GraphEditor_ClassHelper_Template.generated.h"
 

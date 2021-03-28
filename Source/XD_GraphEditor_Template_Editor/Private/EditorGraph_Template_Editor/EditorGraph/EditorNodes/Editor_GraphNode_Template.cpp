@@ -1,12 +1,14 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
-#include "Editor_GraphNode_Template.h"
-#include "BP_GraphNode_Template.h"
-#include "BP_Graph_Template.h"
-#include "EditorGraph_Template.h"
-#include "SGraphNode_Template.h"
-#include "GraphEditor_Template_Log.h"
-#include "GenericCommands.h"
-#include "GraphEditorActions.h"
+#include "EditorGraph_Template_Editor/EditorGraph/EditorNodes/Editor_GraphNode_Template.h"
+#include <Framework/Commands/GenericCommands.h>
+#include <ToolMenu.h>
+#include <ToolMenuSection.h>
+#include <GraphEditorActions.h>
+
+#include "EditorGraph_Template/Nodes/BP_GraphNode_Template.h"
+#include "EditorGraph_Template/Graphs/BP_Graph_Template.h"
+#include "EditorGraph_Template_Editor/EditorGraph/EditorGraph_Template.h"
+#include "EditorGraph_Template_Editor/EditorGraph/SlateWidgets/SGraphNode_Template.h"
 
 #define LOCTEXT_NAMESPACE "Editor_GraphNode_Template"
 
@@ -109,19 +111,21 @@ void UEditor_GraphNode_Template::AutowireNewNode(UEdGraphPin * FromPin)
 }
 
 
-void UEditor_GraphNode_Template::GetContextMenuActions(const FGraphNodeContextMenuBuilder& Context) const
+void UEditor_GraphNode_Template::GetNodeContextMenuActions(class UToolMenu* Menu, class UGraphNodeContextMenuContext* Context) const
 {
-	FMenuBuilder* MenuBuilder = Context.MenuBuilder;
-	MenuBuilder->BeginSection(NAME_None, LOCTEXT("NodeActionsMenuHeader", "节点操作"));
-	{
-		MenuBuilder->AddMenuEntry(FGenericCommands::Get().Delete);
-		MenuBuilder->AddMenuEntry(FGenericCommands::Get().Cut);
-		MenuBuilder->AddMenuEntry(FGenericCommands::Get().Copy);
-		MenuBuilder->AddMenuEntry(FGenericCommands::Get().Duplicate);
 
-		MenuBuilder->AddMenuEntry(FGraphEditorCommands::Get().BreakNodeLinks);
+	if (!Context->bIsDebugging)
+	{
+		// add an option to convert to single frame
+		{
+			FToolMenuSection& Section = Menu->AddSection(NAME_None, LOCTEXT("NodeActionsMenuHeader", "节点操作"));
+			Section.AddMenuEntry(FGenericCommands::Get().Delete);
+			Section.AddMenuEntry(FGenericCommands::Get().Cut);
+			Section.AddMenuEntry(FGenericCommands::Get().Copy);
+			Section.AddMenuEntry(FGenericCommands::Get().Duplicate);
+			Section.AddMenuEntry(FGraphEditorCommands::Get().BreakNodeLinks);
+		}
 	}
-	MenuBuilder->EndSection();
 }
 
 void UEditor_GraphNode_Template::SetAssetNode(UBP_GraphNode_Template * InNode)

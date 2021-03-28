@@ -3,7 +3,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "SubclassOf.h"
+#include "Templates/SubclassOf.h"
 #include "BP_Graph_Template.generated.h"
 
 #define LOCTEXT_NAMESPACE "BP_Graph_Template"

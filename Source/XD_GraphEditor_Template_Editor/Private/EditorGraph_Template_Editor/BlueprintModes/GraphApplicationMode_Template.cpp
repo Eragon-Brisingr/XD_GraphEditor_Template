@@ -1,7 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "GraphApplicationMode_Template.h"
-#include "BlueprintEditorTabs.h"
+#include "EditorGraph_Template_Editor/BlueprintModes/GraphApplicationMode_Template.h"
+#include <BlueprintEditorTabs.h>
+
+#include "EditorGraph_Template_Editor/Toolkits/GraphEditor_Template.h"
 
 FGraphApplicationMode_Template::FGraphApplicationMode_Template(TSharedPtr<class FGraphEditor_Template> GraphEditorToolkit)
 	: FBlueprintApplicationModeTemplate(GraphEditorToolkit, FBlueprintApplicationModesTemplate::GraphMode)

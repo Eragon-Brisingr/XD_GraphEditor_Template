@@ -1,14 +1,14 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
-#include "GraphEditor_ClassHelper_Template.h"
-#include "Class.h"
-#include "FeedbackContext.h"
-#include "Package.h"
+#include "EditorGraph_Template_Editor/Utility/GraphEditor_ClassHelper_Template.h"
+#include "UObject/Class.h"
+#include "Misc/FeedbackContext.h"
+#include "UObject/Package.h"
 #include "Engine/Blueprint.h"
 #include "AssetRegistryModule.h"
-#include "HotReloadInterface.h"
+#include "Misc/HotReloadInterface.h"
 #include "Editor.h"
-#include "ConstructorHelpers.h"
-#include "GraphEditor_Template_Log.h"
+#include "UObject/ConstructorHelpers.h"
+#include "EditorGraph_Template_Editor/Utility/GraphEditor_Template_Log.h"
 
 #define LOCTEXT_NAMESPACE "GraphEditor_ClassHelper_Template"
 
@@ -285,7 +285,7 @@ void FGraphEditor_ClassHelper_Template::OnAssetRemoved(const struct FAssetData& 
 	if (AssetData.GetTagValue(FBlueprintTags::GeneratedClassPath, AssetClassName))
 	{
 		ConstructorHelpers::StripObjectClass(AssetClassName);
-		AssetClassName = FPackageName::ObjectPathToObjectName(*AssetClassName);
+		AssetClassName = FPackageName::ObjectPathToObjectName(AssetClassName);
 
 		TSharedPtr<FGraphEditor_ClassNode_Template> Node = FindBaseClassNode(RootNode, AssetClassName);
 		if (Node.IsValid() && Node->ParentNode.IsValid())

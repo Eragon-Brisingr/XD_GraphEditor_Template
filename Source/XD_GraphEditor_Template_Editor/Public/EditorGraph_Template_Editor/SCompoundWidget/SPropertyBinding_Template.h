@@ -3,8 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SCompoundWidget.h"
+#include "IDetailPropertyExtensionHandler.h"
+#include "Widgets/SCompoundWidget.h"
+#include "UObject/UnrealTypePrivate.h"
 
+class IDetailLayoutBuilder;
 class FGraphEditor_Template;
 class IPropertyHandle;
 struct FFunctionInfo;
@@ -21,7 +24,7 @@ public:
 	SLATE_END_ARGS()
 
 public:
-	void Construct(const FArguments& InArgs, FGraphEditor_Template* InEditor, UDelegateProperty* DelegateProperty, TSharedRef<IPropertyHandle> Property);
+	void Construct(const FArguments& InArgs, FGraphEditor_Template* InEditor, FDelegateProperty* DelegateProperty, TSharedRef<IPropertyHandle> Property);
 
 	TSharedRef<SWidget> OnGenerateDelegateMenu(UObject* Object, TSharedRef<IPropertyHandle> PropertyHandle);
 
@@ -59,9 +62,8 @@ public:
 		: BlueprintEditor(BlueprintEditor)
 	{}
 
-	virtual bool IsPropertyExtendable(const UClass* InObjectClass, const IPropertyHandle& InPropertyHandle) const override;
-
-	virtual TSharedRef<SWidget> GenerateExtensionWidget(const UClass* InObjectClass, TSharedPtr<IPropertyHandle> InPropertyHandle) override;
+	bool IsPropertyExtendable(const UClass* InObjectClass, const IPropertyHandle& InPropertyHandle) const override;
+	TSharedRef<SWidget> GenerateExtensionWidget(const IDetailLayoutBuilder& InDetailBuilder, const UClass* InObjectClass, TSharedPtr<IPropertyHandle> InPropertyHandle) override;
 
 private:
 	FGraphEditor_Template* BlueprintEditor;

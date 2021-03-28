@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "KismetCompiler.h"
 
+struct FDelegateEditorBinding_Template;
 class UEditorGraph_Blueprint_Template;
 class FCompilerResultsLog;
 struct FKismetCompilerOptions;
@@ -18,7 +19,8 @@ protected:
 	typedef FKismetCompilerContext Super;
 
 public:
-	FBP_Compiler_Template(UEditorGraph_Blueprint_Template* SourceSketch, FCompilerResultsLog& InMessageLog, const FKismetCompilerOptions& InCompilerOptions, TArray<UObject*>* InObjLoaded);
+	FBP_Compiler_Template(UEditorGraph_Blueprint_Template* SourceSketch, FCompilerResultsLog& InMessageLog, const FKismetCompilerOptions& InCompilerOptions);
+	//FBP_Compiler_Template(UEditorGraph_Blueprint_Template* SourceSketch, FCompilerResultsLog& InMessageLog, const FKismetCompilerOptions& InCompilerOptions, TArray<UObject*>* InObjLoaded);
 	~FBP_Compiler_Template() override;
 
 	// FKismetCompilerContext

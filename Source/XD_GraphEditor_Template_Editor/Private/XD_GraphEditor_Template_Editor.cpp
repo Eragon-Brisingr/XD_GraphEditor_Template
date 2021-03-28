@@ -1,17 +1,18 @@
 ﻿// Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
 
 #include "XD_GraphEditor_Template_Editor.h"
-#include "ModuleManager.h"
-#include "IAssetTools.h"
-#include "AssetToolsModule.h"
-#include "GraphEditor_Template_AssetTypeActions.h"
-#include "GraphEditor_Template_Log.h"
-#include "GraphEditor_ClassHelper_Template.h"
-#include "BP_GraphNode_Template.h"
-#include "KismetCompiler.h"
-#include "BlueprintGeneratedClass_Template.h"
-#include "EditorGraph_Blueprint_Template.h"
-#include "BP_Compiler_Template.h"
+#include <Modules/ModuleManager.h>
+#include <IAssetTools.h>
+#include <AssetToolsModule.h>
+#include <KismetCompiler.h>
+
+#include "EditorGraph_Template/Blueprint/BlueprintGeneratedClass_Template.h"
+#include "EditorGraph_Template/Blueprint/EditorGraph_Blueprint_Template.h"
+#include "EditorGraph_Template_Editor/Utility/GraphEditor_ClassHelper_Template.h"
+#include "EditorGraph_Template_Editor/Utility/GraphEditor_Template_Log.h"
+#include "EditorGraph_Template_Editor/AssetTypeActions/GraphEditor_Template_AssetTypeActions.h"
+#include "EditorGraph_Template_Editor/Compiler/BP_Compiler_Template.h"
+#include "EditorGraph_Template/Nodes/BP_GraphNode_Template.h"
 
 #define LOCTEXT_NAMESPACE "FXD_GraphEditor_Template_EditorModule"
 
@@ -43,7 +44,7 @@ void FXD_GraphEditor_Template_EditorModule::StartNodeHelper()
 
 TSharedPtr<FKismetCompilerContext> FXD_GraphEditor_Template_EditorModule::GetCompilerForBP(UBlueprint* BP, FCompilerResultsLog& InMessageLog, const FKismetCompilerOptions& InCompileOptions)
 {
-	return TSharedPtr<FKismetCompilerContext>(new FBP_Compiler_Template(CastChecked<UEditorGraph_Blueprint_Template>(BP), InMessageLog, InCompileOptions, nullptr));
+	return TSharedPtr<FKismetCompilerContext>(new FBP_Compiler_Template(CastChecked<UEditorGraph_Blueprint_Template>(BP), InMessageLog, InCompileOptions));
 }
 
 #undef LOCTEXT_NAMESPACE

@@ -1,36 +1,39 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-#include "DesignerApplicationMode_Template.h"
-#include "WorkflowTabFactory.h"
-#include "GraphEditor_Template.h"
-#include "BlueprintEditor.h"
-#include "PropertyEditorModule.h"
-#include "GraphEditor.h"
-#include "GenericCommands.h"
-#include "EdGraphUtilities.h"
-#include "PlatformApplicationMisc.h"
-#include "SBlueprintEditorToolbar.h"
-#include "BlueprintEditorUtils.h"
-#include "Editor_GraphNode_Template.h"
-#include "EditorGraph_Template.h"
-#include "PropertyEditorDelegates.h"
-#include "SKismetInspector.h"
-#include "IDetailCustomization.h"
-#include "DetailCategoryBuilder.h"
-#include "DetailLayoutBuilder.h"
-#include "SComboButton.h"
-#include "DetailWidgetRow.h"
-#include "ObjectEditorUtils.h"
-#include "KismetEditorUtilities.h"
-#include "SWidgetSwitcher.h"
-#include "K2Node_ComponentBoundEvent.h"
-#include "IDetailPropertyExtensionHandler.h"
-#include "MultiBoxBuilder.h"
-#include "SlateApplication.h"
-#include "ScopedTransaction.h"
-#include "EditorGraph_Blueprint_Template.h"
-#include "SPropertyBinding_Template.h"
-#include "SDetailsView_Template.h"
+#include "EditorGraph_Template_Editor/BlueprintModes/DesignerApplicationMode_Template.h"
+#include <WorkflowOrientedApp/WorkflowTabFactory.h>
+#include <BlueprintEditor.h>
+#include <PropertyEditorModule.h>
+#include <GraphEditor.h>
+#include <Framework/Commands/GenericCommands.h>
+#include <EdGraphUtilities.h>
+#include <HAL/PlatformApplicationMisc.h>
+#include <SBlueprintEditorToolbar.h>
+#include <Kismet2/BlueprintEditorUtils.h>
+#include <PropertyEditorDelegates.h>
+#include <SKismetInspector.h>
+#include <IDetailCustomization.h>
+#include <DetailCategoryBuilder.h>
+#include <DetailLayoutBuilder.h>
+#include <Widgets/Input/SComboButton.h>
+#include <DetailWidgetRow.h>
+#include <ObjectEditorUtils.h>
+#include <Kismet2/KismetEditorUtilities.h>
+#include <Widgets/Layout/SWidgetSwitcher.h>
+#include <K2Node_ComponentBoundEvent.h>
+#include <IDetailPropertyExtensionHandler.h>
+#include <Framework/MultiBox/MultiBoxBuilder.h>
+#include <Framework/Application/SlateApplication.h>
+#include <ScopedTransaction.h>
+
+#include "EditorGraph_Template/Nodes/BP_GraphNode_Template.h"
+#include "EditorGraph_Template/Graphs/BP_Graph_Template.h"
+#include "EditorGraph_Template_Editor/Toolkits/GraphEditor_Template.h"
+#include "EditorGraph_Template_Editor/EditorGraph/EditorNodes/Editor_GraphNode_Template.h"
+#include "EditorGraph_Template/Blueprint/EditorGraph_Blueprint_Template.h"
+#include "EditorGraph_Template_Editor/SCompoundWidget/SPropertyBinding_Template.h"
+#include "EditorGraph_Template_Editor/EditorGraph/EditorGraph_Template.h"
+#include "EditorGraph_Template_Editor/SCompoundWidget/SDetailsView_Template.h"
 
 #define LOCTEXT_NAMESPACE "GraphEditor_Template"
 
@@ -95,9 +98,9 @@ public:
 };
 
 FDesignerGraphSummoner_Template::FDesignerGraphSummoner_Template(class FDesignerApplicationMode_Template* DesignerApplicationMode, TSharedPtr<class FGraphEditor_Template> InDesignGraphEditor)
-	:FWorkflowTabFactory(FDesignerApplicationMode_Template::GraphTabId, InDesignGraphEditor),
-	DesignerApplicationMode(DesignerApplicationMode),
-	InDesignGraphEditor(InDesignGraphEditor)
+	:FWorkflowTabFactory(FDesignerApplicationMode_Template::GraphTabId, InDesignGraphEditor)
+	, DesignerApplicationMode(DesignerApplicationMode)
+	, InDesignGraphEditor(InDesignGraphEditor)
 {
 	TabLabel = LOCTEXT("DesingerGraph_Template_TabLabel", "图表");
 	TabIcon = FSlateIcon(FEditorStyle::GetStyleSetName(), "PhysicsAssetEditor.Tabs.Graph");
@@ -159,8 +162,12 @@ FDesignerApplicationMode_Template::FDesignerApplicationMode_Template(TSharedPtr<
  	TabFactories.RegisterFactory(MakeShareable(new FDesignerGraphSummoner_Template(this, GraphEditorToolkit)));
 
 	ToolbarExtender = MakeShareable(new FExtender);
-	GraphEditorToolkit->GetToolbarBuilder()->AddCompileToolbar(ToolbarExtender);
-	GraphEditorToolkit->GetToolbarBuilder()->AddDebuggingToolbar(ToolbarExtender);
+
+	if (UToolMenu* Toolbar = GraphEditorToolkit->RegisterModeToolbarIfUnregistered(GetModeName()))
+	{
+		GraphEditorToolkit->GetToolbarBuilder()->AddCompileToolbar(Toolbar);
+		GraphEditorToolkit->GetToolbarBuilder()->AddDebuggingToolbar(Toolbar);
+	}
 	AddModeSwitchToolBarExtension();
 
 	BindDesignerToolkitCommands();

@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-#include "BlueprintApplicationModeTemplate.h"
-#include "SModeWidget.h"
+#include "EditorGraph_Template_Editor/BlueprintModes/BlueprintApplicationModeTemplate.h"
+#include "WorkflowOrientedApp/SModeWidget.h"
 #include "IDocumentation.h"
 
 #define LOCTEXT_NAMESPACE "GraphEditor_Template"

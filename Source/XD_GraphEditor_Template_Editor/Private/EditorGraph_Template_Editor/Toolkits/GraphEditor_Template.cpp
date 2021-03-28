@@ -1,18 +1,23 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
-#include "GraphEditor_Template.h"
-#include "GraphEditor_Template_Log.h"
-#include "PropertyEditorModule.h"
-#include "ModuleManager.h"
-#include "Slate.h"
-#include "BlueprintEditorUtils.h"
-#include "GraphEditorActions.h"
-#include "EditorGraph_Template.h"
-#include "EditorGraphSchema_Template.h"
-#include "EdGraphUtilities.h"
-#include "Editor_GraphNode_Template.h"
-#include "Editor.h"
-#include "DesignerApplicationMode_Template.h"
-#include "GraphApplicationMode_Template.h"
+#include "EditorGraph_Template_Editor/Toolkits/GraphEditor_Template.h"
+#include <Misc/NotifyHook.h>
+#include <IDetailsView.h>
+#include <PropertyEditorModule.h>
+#include <Modules/ModuleManager.h>
+#include <Slate.h>
+#include <Kismet2/BlueprintEditorUtils.h>
+#include <GraphEditorActions.h>
+#include <EdGraphUtilities.h>
+#include <Editor.h>
+
+#include "EditorGraph_Template/Blueprint/EditorGraph_Blueprint_Template.h"
+#include "EditorGraph_Template_Editor/EditorGraph/EditorNodes/Editor_GraphNode_Template.h"
+#include "EditorGraph_Template_Editor/Utility/GraphEditor_Template_Log.h"
+#include "EditorGraph_Template_Editor/EditorGraph/EditorGraph_Template.h"
+#include "EditorGraph_Template_Editor/EditorGraph/EditorGraphSchema_Template.h"
+#include "EditorGraph_Template_Editor/BlueprintModes/DesignerApplicationMode_Template.h"
+#include "EditorGraph_Template_Editor/BlueprintModes/GraphApplicationMode_Template.h"
+#include "EditorGraph_Template/Graphs/BP_Graph_Template.h"
 
 
 #define LOCTEXT_NAMESPACE "GraphEditorToolkit_Template"
@@ -55,14 +60,12 @@ FString FGraphEditor_Template::GetWorldCentricTabPrefix() const
 
 void FGraphEditor_Template::InitGarph_TemplateEditor(const EToolkitMode::Type InMode, const TSharedPtr<class IToolkitHost>& InToolkitHost, UEditorGraph_Blueprint_Template* InBP)
 {
-	InitBlueprintEditor(InMode, InToolkitHost, { InBP }, true);
-
 	DesignerGraph_Template = InBP->DesignerGraph_Template;
 
 	if (DesignerGraph_Template->EdGraph == nullptr)
 	{
 		GraphEditor_Template_Log("Creating a new graph.");
-		DesignerGraph_Template->EdGraph = CastChecked<UEditorGraph_Template>(FBlueprintEditorUtils::CreateNewGraph(DesignerGraph_Template, NAME_None, UEditorGraph_Template::StaticClass(), UEditorGraphSchema_Template::StaticClass()));
+		DesignerGraph_Template->EdGraph = CastChecked<UEditorGraph_Template>(FBlueprintEditorUtils::CreateNewGraph(DesignerGraph_Template.Get(), NAME_None, UEditorGraph_Template::StaticClass(), UEditorGraphSchema_Template::StaticClass()));
 		DesignerGraph_Template->EdGraph->bAllowDeletion = false;
 
 		//Give the schema a chance to fill out any required nodes (like the results node)
@@ -72,6 +75,7 @@ void FGraphEditor_Template::InitGarph_TemplateEditor(const EToolkitMode::Type In
 
 	GetDesignerGraph()->OwningGraphEditor = this;
 
+	InitBlueprintEditor(InMode, InToolkitHost, { InBP }, true);
 	UpdatePreviewActor(GetBlueprintObj(), true);
 
 	UEditorGraph_Blueprint_Template* EditorGraph_Blueprint = GetTemplateBlueprintObj();
@@ -83,7 +87,7 @@ void FGraphEditor_Template::InitGarph_TemplateEditor(const EToolkitMode::Type In
 
 void FGraphEditor_Template::BlueprintCompiled(class UBlueprint* Blueprint)
 {
-	if (DesignerGraph_Template)
+	if (DesignerGraph_Template.IsValid())
 	{
 		if (UEditorGraph_Template* EdGraph = Cast<UEditorGraph_Template>(DesignerGraph_Template->EdGraph))
 		{
@@ -95,7 +99,7 @@ void FGraphEditor_Template::BlueprintCompiled(class UBlueprint* Blueprint)
 
 void FGraphEditor_Template::InitalizeExtenders()
 {
-	FBlueprintEditor::InitalizeExtenders();
+	Super::InitalizeExtenders();
 }
 
 void FGraphEditor_Template::RegisterApplicationModes(const TArray<UBlueprint*>& InBlueprints, bool bShouldOpenInDefaultsMode, bool bNewlyCreated /*= false*/)
@@ -116,14 +120,9 @@ void FGraphEditor_Template::RegisterApplicationModes(const TArray<UBlueprint*>& 
 
 FGraphAppearanceInfo FGraphEditor_Template::GetGraphAppearance(class UEdGraph* InGraph) const
 {
-	FGraphAppearanceInfo AppearanceInfo = FBlueprintEditor::GetGraphAppearance(InGraph);
+	FGraphAppearanceInfo AppearanceInfo = Super::GetGraphAppearance(InGraph);
 
 	return AppearanceInfo;
-}
-
-void FGraphEditor_Template::AppendExtraCompilerResults(TSharedPtr<class IMessageLogListing> ResultsListing)
-{
-	FBlueprintEditor::AppendExtraCompilerResults(ResultsListing);
 }
 
 TSubclassOf<UEdGraphSchema> FGraphEditor_Template::GetDefaultSchemaClass() const
@@ -143,24 +142,24 @@ UEditorGraph_Template* FGraphEditor_Template::GetDesignerGraph() const
 
 void FGraphEditor_Template::SaveAsset_Execute()
 {
-	if (DesignerGraph_Template)
+	if (DesignerGraph_Template.IsValid())
 	{
 		if (UEditorGraph_Template* EdGraph = Cast<UEditorGraph_Template>(DesignerGraph_Template->EdGraph))
 		{
 			EdGraph->BuildGraph();
 		}
 	}
-	FBlueprintEditor::SaveAsset_Execute();
+	Super::SaveAsset_Execute();
 }
 
-void FGraphEditor_Template::RegisterTabSpawners(const TSharedRef<FTabManager>& TabManager)
+void FGraphEditor_Template::RegisterTabSpawners(const TSharedRef<FTabManager>& InTabManager)
 {
-	FBlueprintEditor::RegisterTabSpawners(TabManager);
+	Super::RegisterTabSpawners(InTabManager);
 }
 
-void FGraphEditor_Template::UnregisterTabSpawners(const TSharedRef<FTabManager>& TabManager)
+void FGraphEditor_Template::UnregisterTabSpawners(const TSharedRef<FTabManager>& InTabManager)
 {
-	FBlueprintEditor::UnregisterTabSpawners(TabManager);
+	Super::UnregisterTabSpawners(InTabManager);
 }
 
 // END Commands and binding

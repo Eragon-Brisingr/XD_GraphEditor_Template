@@ -1,20 +1,25 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-#include "SDetailsView_Template.h"
-#include "IDetailCustomization.h"
-#include "DetailCategoryBuilder.h"
-#include "DetailLayoutBuilder.h"
-#include "SComboButton.h"
-#include "DetailWidgetRow.h"
-#include "ObjectEditorUtils.h"
-#include "KismetEditorUtilities.h"
-#include "SWidgetSwitcher.h"
-#include "IDetailPropertyExtensionHandler.h"
-#include "EditorGraph_Blueprint_Template.h"
-#include "BP_GraphNode_Template.h"
-#include "BlueprintEditorUtils.h"
-#include "ScopedTransaction.h"
-#include "PropertyEditorModule.h"
+#include "EditorGraph_Template_Editor/SCompoundWidget/SDetailsView_Template.h"
+#include <IDetailCustomization.h>
+#include <DetailCategoryBuilder.h>
+#include <DetailLayoutBuilder.h>
+#include <Widgets/Input/SComboButton.h>
+#include <DetailWidgetRow.h>
+#include <ObjectEditorUtils.h>
+#include <Kismet2/KismetEditorUtilities.h>
+#include <Widgets/Layout/SWidgetSwitcher.h>
+#include <IDetailPropertyExtensionHandler.h>
+#include <Kismet2/BlueprintEditorUtils.h>
+#include <ScopedTransaction.h>
+#include <PropertyEditorModule.h>
+#include <K2Node_ComponentBoundEvent.h>
+
+#include "EditorGraph_Template/Blueprint/EditorGraph_Blueprint_Template.h"
+#include "EditorGraph_Template_Editor/EditorGraph/EditorGraph_Template.h"
+#include "EditorGraph_Template_Editor/Toolkits/GraphEditor_Template.h"
+#include "EditorGraph_Template/Nodes/BP_GraphNode_Template.h"
+#include "EditorGraph_Template_Editor/SCompoundWidget/SPropertyBinding_Template.h"
 
 #define LOCTEXT_NAMESPACE "GraphEditor_Template"
 
@@ -59,11 +64,11 @@ void SDetailsView_Template::Construct(const FArguments& InArgs, TWeakPtr<FGraphE
 				UObject* Obj = OutObjects[0].Get();
 				UClass* PropertyClass = Obj->GetClass();
 
-				for (TFieldIterator<UProperty> PropertyIt(PropertyClass, EFieldIteratorFlags::IncludeSuper); PropertyIt; ++PropertyIt)
+				for (TFieldIterator<FProperty> PropertyIt(PropertyClass, EFieldIteratorFlags::IncludeSuper); PropertyIt; ++PropertyIt)
 				{
-					UProperty* Property = *PropertyIt;
+					FProperty* Property = *PropertyIt;
 						
-					if (UMulticastDelegateProperty* MulticastDelegateProperty = Cast<UMulticastDelegateProperty>(Property))
+					if (FMulticastDelegateProperty* MulticastDelegateProperty = CastField<FMulticastDelegateProperty>(Property))
 					{
 						CreateMulticastEventCustomization(DetailLayout, OutObjects[0].Get()->GetFName(), PropertyClass, MulticastDelegateProperty);
 					}
@@ -71,7 +76,7 @@ void SDetailsView_Template::Construct(const FArguments& InArgs, TWeakPtr<FGraphE
 			}
 		}
 
-		void CreateMulticastEventCustomization(IDetailLayoutBuilder& DetailLayout, FName ThisComponentName, UClass* PropertyClass, UMulticastDelegateProperty* DelegateProperty)
+		void CreateMulticastEventCustomization(IDetailLayoutBuilder& DetailLayout, FName ThisComponentName, UClass* PropertyClass, FMulticastDelegateProperty* DelegateProperty)
 		{
 			const FString AddString = FString(TEXT("添加 "));
 			const FString ViewString = FString(TEXT("查看 "));
@@ -89,7 +94,7 @@ void SDetailsView_Template::Construct(const FArguments& InArgs, TWeakPtr<FGraphE
 				PropertyTooltip = FText::FromString(DelegateProperty->GetName());
 			}
 
-			UObjectProperty* ComponentProperty = FindField<UObjectProperty>(Blueprint->SkeletonGeneratedClass, ThisComponentName);
+			FObjectProperty* ComponentProperty = FindFProperty<FObjectProperty>(Blueprint->SkeletonGeneratedClass, ThisComponentName);
 
 			if (!ComponentProperty)
 			{
@@ -156,7 +161,7 @@ void SDetailsView_Template::Construct(const FArguments& InArgs, TWeakPtr<FGraphE
 			UBlueprint* BlueprintObj = Blueprint;
 
 			// Find the corresponding variable property in the Blueprint
-			UObjectProperty* VariableProperty = FindField<UObjectProperty>(BlueprintObj->SkeletonGeneratedClass, PropertyName);
+			FObjectProperty* VariableProperty = FindFProperty<FObjectProperty>(BlueprintObj->SkeletonGeneratedClass, PropertyName);
 
 			if (VariableProperty)
 			{

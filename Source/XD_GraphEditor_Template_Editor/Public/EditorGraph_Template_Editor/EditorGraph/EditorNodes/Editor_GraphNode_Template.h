@@ -5,9 +5,10 @@
 
 #include "CoreMinimal.h"
 #include "EdGraph/EdGraphNode.h"
-#include "BP_GraphNode_Template.h"
-#include "SubclassOf.h"
+#include "Templates/SubclassOf.h"
 #include "Editor_GraphNode_Template.generated.h"
+
+class UBP_GraphNode_Template;
 
 /**
  * 
@@ -25,7 +26,7 @@ public:
 	void PrepareForCopying() override;
 	void DestroyNode() override;
 	void AutowireNewNode(UEdGraphPin* FromPin) override;
-	void GetContextMenuActions(const FGraphNodeContextMenuBuilder& Context) const override;
+	void GetNodeContextMenuActions(class UToolMenu* Menu, class UGraphNodeContextMenuContext* Context) const override;
 
 public:
 	virtual void SetAssetNode(UBP_GraphNode_Template* InNode);
@@ -43,5 +44,4 @@ protected:
 public:
 	UPROPERTY(Instanced)
 	UBP_GraphNode_Template* BP_Node_Template = nullptr;
-
 };

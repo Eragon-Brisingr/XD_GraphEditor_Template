@@ -1,9 +1,10 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
-#include "GraphEditor_AssetFactory_Template.h"
-#include "EditorGraph_Blueprint_Template.h"
-#include "BlueprintGeneratedClass_Template.h"
-#include "KismetEditorUtilities.h"
-#include "ObjectBase_Template.h"
+#include "EditorGraph_Template_Editor/Factories/GraphEditor_AssetFactory_Template.h"
+#include <Kismet2/KismetEditorUtilities.h>
+
+#include "EditorGraph_Template/Blueprint/EditorGraph_Blueprint_Template.h"
+#include "EditorGraph_Template/Blueprint/BlueprintGeneratedClass_Template.h"
+#include "EditorGraph_Template/ObjectBase_Template.h"
 
 UGraphEditor_AssetFactory_Template::UGraphEditor_AssetFactory_Template()
 {

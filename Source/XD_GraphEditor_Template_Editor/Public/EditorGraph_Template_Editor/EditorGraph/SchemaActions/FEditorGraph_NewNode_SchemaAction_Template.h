@@ -3,9 +3,10 @@
 
 #include "CoreMinimal.h"
 #include "EdGraph/EdGraphSchema.h"
-#include "SubclassOf.h"
-#include "BP_GraphNode_Template.h"
+#include "Templates/SubclassOf.h"
 #include "FEditorGraph_NewNode_SchemaAction_Template.generated.h"
+
+class UBP_GraphNode_Template;
 
 /**
  * 
@@ -23,7 +24,5 @@ public:
 	UEdGraphNode* PerformAction(class UEdGraph* ParentGraph, UEdGraphPin* FromPin, const FVector2D Location, bool bSelectNewNode = true) override;
 
     virtual UEdGraphNode* CreateEditorNode(UEdGraph * ParentGraph, bool bSelectNewNode, UBP_GraphNode_Template* AssetNode);
-	TSubclassOf<UBP_GraphNode_Template>NewNodeClass;
-
-
+	TSubclassOf<UBP_GraphNode_Template> NewNodeClass;
 };

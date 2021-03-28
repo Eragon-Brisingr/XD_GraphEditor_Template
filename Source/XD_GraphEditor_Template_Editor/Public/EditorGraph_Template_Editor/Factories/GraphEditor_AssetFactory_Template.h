@@ -15,20 +15,7 @@ class UGraphEditor_AssetFactory_Template : public UFactory
 	
 public:
 	UGraphEditor_AssetFactory_Template();
-	/**
-	* Create a new object by class.
-	*
-	* @param InClass
-	* @param InParent
-	* @param InName
-	* @param Flags
-	* @param Context
-	* @param Warn
-	* @return The new object.
-	*/
+
 	UObject* FactoryCreateNew(UClass* Class, UObject* InParent, FName Name, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn, FName CallingContext) override;
 	UObject* FactoryCreateNew(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn) override;
-
-	
-	
 };

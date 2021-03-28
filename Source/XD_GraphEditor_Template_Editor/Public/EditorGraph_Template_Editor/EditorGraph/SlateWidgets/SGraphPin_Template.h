@@ -18,9 +18,9 @@ public:
 	void Construct(const FArguments& InArgs, UEdGraphPin* InPin);
 
 protected:
-	virtual FSlateColor GetPinColor() const override;
+	FSlateColor GetPinColor() const override;
 
-	virtual TSharedRef<SWidget>	GetDefaultValueWidget() override;
+	TSharedRef<SWidget>	GetDefaultValueWidget() override;
 
 	const FSlateBrush* GetPinBorder() const;
 };

@@ -1,21 +1,24 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-#include "SPropertyBinding_Template.h"
-#include "IDetailCustomization.h"
-#include "DetailCategoryBuilder.h"
-#include "DetailLayoutBuilder.h"
-#include "SComboButton.h"
-#include "DetailWidgetRow.h"
-#include "ObjectEditorUtils.h"
-#include "KismetEditorUtilities.h"
-#include "SWidgetSwitcher.h"
-#include "IDetailPropertyExtensionHandler.h"
-#include "BlueprintEditorUtils.h"
-#include "EditorGraph_Blueprint_Template.h"
+#include "EditorGraph_Template_Editor/SCompoundWidget/SPropertyBinding_Template.h"
+#include <IDetailCustomization.h>
+#include <DetailCategoryBuilder.h>
+#include <DetailLayoutBuilder.h>
+#include <Widgets/Input/SComboButton.h>
+#include <DetailWidgetRow.h>
+#include <ObjectEditorUtils.h>
+#include <Kismet2/KismetEditorUtilities.h>
+#include <Widgets/Layout/SWidgetSwitcher.h>
+#include <IDetailPropertyExtensionHandler.h>
+#include <Kismet2/BlueprintEditorUtils.h>
+
+#include "EditorGraph_Template_Editor/BlueprintModes/BlueprintApplicationModeTemplate.h"
+#include "EditorGraph_Template_Editor/Toolkits/GraphEditor_Template.h"
+#include "EditorGraph_Template/Blueprint/EditorGraph_Blueprint_Template.h"
 
 #define LOCTEXT_NAMESPACE "GraphEditor_Template"
 
-void SPropertyBinding_Template::Construct(const FArguments& InArgs, FGraphEditor_Template* InEditor, UDelegateProperty* DelegateProperty, TSharedRef<IPropertyHandle> Property)
+void SPropertyBinding_Template::Construct(const FArguments& InArgs, FGraphEditor_Template* InEditor, FDelegateProperty* DelegateProperty, TSharedRef<IPropertyHandle> Property)
 {
 	Editor = InEditor;
 	BindableSignature = DelegateProperty->SignatureFunction;
@@ -436,12 +439,12 @@ bool FDetailExtensionHandler_Template::IsPropertyExtendable(const UClass* InObje
 			return false;
 		}
 
-		UProperty* Property = InPropertyHandle.GetProperty();
+		FProperty* Property = InPropertyHandle.GetProperty();
 		FString DelegateName = Property->GetName() + "Delegate";
 
-		if (UClass* ContainerClass = Cast<UClass>(Property->GetOuter()))
+		if (UClass* ContainerClass = Property->GetOwner<UClass>())
 		{
-			UDelegateProperty* DelegateProperty = FindField<UDelegateProperty>(ContainerClass, FName(*DelegateName));
+			FDelegateProperty* DelegateProperty = FindFProperty<FDelegateProperty>(ContainerClass, FName(*DelegateName));
 			if (DelegateProperty)
 			{
 				return true;
@@ -452,12 +455,12 @@ bool FDetailExtensionHandler_Template::IsPropertyExtendable(const UClass* InObje
 	return false;
 }
 
-TSharedRef<SWidget> FDetailExtensionHandler_Template::GenerateExtensionWidget(const UClass* InObjectClass, TSharedPtr<IPropertyHandle> InPropertyHandle)
+TSharedRef<SWidget> FDetailExtensionHandler_Template::GenerateExtensionWidget(const IDetailLayoutBuilder& InDetailBuilder, const UClass* InObjectClass, TSharedPtr<IPropertyHandle> InPropertyHandle)
 {
-	UProperty* Property = InPropertyHandle->GetProperty();
+	FProperty* Property = InPropertyHandle->GetProperty();
 	FString DelegateName = Property->GetName() + "Delegate";
 
-	UDelegateProperty* DelegateProperty = FindFieldChecked<UDelegateProperty>(CastChecked<UClass>(Property->GetOuter()), FName(*DelegateName));
+	FDelegateProperty* DelegateProperty = FindFProperty<FDelegateProperty>(Property->GetOwner<UClass>(), FName(*DelegateName));
 
 	const bool bIsEditable = Property->HasAnyPropertyFlags(CPF_Edit | CPF_EditConst);
 	const bool bDoSignaturesMatch = DelegateProperty->SignatureFunction->GetReturnProperty()->SameType(Property);

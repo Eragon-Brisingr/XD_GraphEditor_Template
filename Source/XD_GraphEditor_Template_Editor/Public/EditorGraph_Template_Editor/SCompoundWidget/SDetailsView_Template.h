@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SCompoundWidget.h"
-#include "NotifyHook.h"
+#include "Widgets/SCompoundWidget.h"
+#include "Misc/NotifyHook.h"
 
 class FGraphEditor_Template;
 

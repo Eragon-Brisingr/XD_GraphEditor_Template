@@ -1,10 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "EditorGraph_Blueprint_Template.h"
-#include "BP_Graph_Template.h"
-#include "BP_GraphNode_Template.h"
-#include "BlueprintGeneratedClass_Template.h"
-#include "ObjectBase_Template.h"
+#include "EditorGraph_Template/Blueprint/EditorGraph_Blueprint_Template.h"
+
+#include "EditorGraph_Template/Blueprint/BlueprintGeneratedClass_Template.h"
+#include "EditorGraph_Template/Graphs/BP_Graph_Template.h"
+#include "EditorGraph_Template/Nodes/BP_GraphNode_Template.h"
+#include "EditorGraph_Template/ObjectBase_Template.h"
 
 #define LOCTEXT_NAMESPACE "GraphEditor_Template"
 

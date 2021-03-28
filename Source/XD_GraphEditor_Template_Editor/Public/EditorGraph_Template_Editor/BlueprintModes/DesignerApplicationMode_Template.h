@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BlueprintApplicationModeTemplate.h"
+#include "EditorGraph_Template_Editor/BlueprintModes/BlueprintApplicationModeTemplate.h"
 
 class SGraphEditor;
 

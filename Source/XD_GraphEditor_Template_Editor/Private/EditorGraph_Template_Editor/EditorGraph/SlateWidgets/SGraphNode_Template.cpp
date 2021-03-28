@@ -1,16 +1,16 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
-#include "SGraphNode_Template.h"
-#include "Slate.h"
-#include "Editor_GraphNode_Template.h"
-#include "SGraphPin.h"
-#include "SGraphPin_Template.h"
-#include "GraphEditor_Template_Log.h"
-#include "SCommentBubble.h"
-#include "IDetailsView.h"
-#include "PropertyEditorModule.h"
-#include "ModuleManager.h"
-#include "SPropertyBinding_Template.h"
-#include "EditorGraph_Template.h"
+#include "EditorGraph_Template_Editor/EditorGraph/SlateWidgets/SGraphNode_Template.h"
+#include <Slate.h>
+#include <SGraphPin.h>
+#include <SCommentBubble.h>
+#include <IDetailsView.h>
+#include <PropertyEditorModule.h>
+#include <Modules/ModuleManager.h>
+
+#include "EditorGraph_Template_Editor/EditorGraph/SlateWidgets/SGraphPin_Template.h"
+#include "EditorGraph_Template_Editor/EditorGraph/EditorGraph_Template.h"
+#include "EditorGraph_Template_Editor/SCompoundWidget/SPropertyBinding_Template.h"
+#include "EditorGraph_Template_Editor/EditorGraph/EditorNodes/Editor_GraphNode_Template.h"
 
 #define LOCTEXT_NAMESPACE "SBP_Graph_TemplateNode"
 

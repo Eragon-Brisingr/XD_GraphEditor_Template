@@ -1,18 +1,20 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-#include "BP_Compiler_Template.h"
-#include "EditorGraph_Blueprint_Template.h"
-#include "BlueprintGeneratedClass_Template.h"
-#include "KismetReinstanceUtilities.h"
-#include "BP_Graph_Template.h"
-#include "BP_GraphNode_Template.h"
+#include "EditorGraph_Template_Editor/Compiler/BP_Compiler_Template.h"
+#include <UObject/UnrealType.h>
+#include <Kismet2/KismetReinstanceUtilities.h>
+
+#include "EditorGraph_Template/Blueprint/EditorGraph_Blueprint_Template.h"
+#include "EditorGraph_Template/Blueprint/BlueprintGeneratedClass_Template.h"
+#include "EditorGraph_Template/Graphs/BP_Graph_Template.h"
+#include "EditorGraph_Template/Nodes/BP_GraphNode_Template.h"
 
 #define LOCTEXT_NAMESPACE "GraphEditor_Template"
 
 #define CPF_Instanced (CPF_PersistentInstance | CPF_ExportObject | CPF_InstancedReference)
 
-FBP_Compiler_Template::FBP_Compiler_Template(UEditorGraph_Blueprint_Template* SourceSketch, FCompilerResultsLog& InMessageLog, const FKismetCompilerOptions& InCompilerOptions, TArray<UObject*>* InObjLoaded)
-	: FKismetCompilerContext(SourceSketch, InMessageLog, InCompilerOptions, InObjLoaded)
+FBP_Compiler_Template::FBP_Compiler_Template(UEditorGraph_Blueprint_Template* SourceSketch, FCompilerResultsLog& InMessageLog, const FKismetCompilerOptions& InCompilerOptions)
+	: FKismetCompilerContext(SourceSketch, InMessageLog, InCompilerOptions)
 {
 
 }
@@ -47,7 +49,7 @@ void FBP_Compiler_Template::CreateClassVariablesFromBlueprint()
 	{
 		if (Node->bIsVariable)
 		{
-			UProperty* NodeProperty = CreateVariable(Node->GetFName(), FEdGraphPinType(UEdGraphSchema_K2::PC_Object, NAME_None, Node->GetClass(), EPinContainerType::None, false, FEdGraphTerminalType()));
+			FProperty* NodeProperty = CreateVariable(Node->GetFName(), FEdGraphPinType(UEdGraphSchema_K2::PC_Object, NAME_None, Node->GetClass(), EPinContainerType::None, false, FEdGraphTerminalType()));
 			if (NodeProperty)
 			{
 				NodeProperty->SetPropertyFlags(CPF_BlueprintVisible);
@@ -104,7 +106,7 @@ bool FBP_Compiler_Template::IsBindingValid(const FDelegateEditorBinding_Template
 
 	if (UFunction* Function = Class->FindFunctionByName(Binding.GetFunctionName(Blueprint), EIncludeSuperFlag::IncludeSuper))
 	{
-		UDelegateProperty* DelegateProperty = FindField<UDelegateProperty>(Binding.Object->GetClass(), FName(*(Binding.PropertyName.ToString() + TEXT("Delegate"))));
+		FDelegateProperty* DelegateProperty = FindFProperty<FDelegateProperty>(Binding.Object->GetClass(), FName(*(Binding.PropertyName.ToString() + TEXT("Delegate"))));
 
 		// Check the signatures to ensure these functions match.
 		if (Function->IsSignatureCompatibleWith(DelegateProperty->SignatureFunction, UFunction::GetDefaultIgnoredSignatureCompatibilityFlags() | CPF_ReturnParm))

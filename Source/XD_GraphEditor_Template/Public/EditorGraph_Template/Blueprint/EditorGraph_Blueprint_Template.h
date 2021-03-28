@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/Blueprint.h"
-#include "BlueprintGeneratedClass_Template.h"
+#include "EditorGraph_Template/Blueprint/BlueprintGeneratedClass_Template.h"
 #include "EditorGraph_Blueprint_Template.generated.h"
 
 class UEditorGraph_Blueprint_Template;

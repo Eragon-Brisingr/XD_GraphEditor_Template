@@ -6,6 +6,8 @@
 #include "BlueprintEditorModes.h"
 #include "WorkflowOrientedApp/WorkflowTabManager.h"
 
+class UEditorGraph_Blueprint_Template;
+
 /**
  * 
  */
